@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>お当番機能 UIシミュレーター Ver.5</title>
+  <title>お当番機能 UIシミュレーター Ver.6</title>
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -103,13 +103,16 @@
         <span id="admin-status-badge" class="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">準備中</span>
       </div>
 
-      <!-- 役員画面内の小タブ切り替え -->
-      <div class="flex bg-slate-200 rounded-xl p-1 shadow-inner">
-        <button id="subtab-dates" class="flex-1 py-2 text-center text-sm font-bold bg-white text-slate-800 rounded-lg shadow-sm" onclick="switchSubTab('dates')">
-          ① 日程の管理
+      <!-- 役員画面内の小タブ切り替え (3つのタブに変更) -->
+      <div class="flex bg-slate-200 rounded-xl p-1 shadow-inner gap-1">
+        <button id="subtab-dates" class="flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm" onclick="switchSubTab('dates')">
+          ① 日程管理
         </button>
-        <button id="subtab-assign" class="flex-1 py-2 text-center text-sm font-bold text-slate-600 rounded-lg" onclick="switchSubTab('assign')">
-          ② 当番の割り振り
+        <button id="subtab-assign" class="flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg" onclick="switchSubTab('assign')">
+          ② 割り振り
+        </button>
+        <button id="subtab-history" class="flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg" onclick="switchSubTab('history')">
+          ③ 当番の履歴
         </button>
       </div>
 
@@ -167,6 +170,90 @@
         </div>
       </div>
 
+      <!-- 👑 👑 役員タブ3: 当番の履歴 (NEW!) -->
+      <div id="admin-panel-history" class="space-y-4 hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
+          <div>
+            <h3 class="text-sm font-bold text-slate-800 mb-1">お当番実績・履歴</h3>
+            <p class="text-xs text-slate-400">各メンバーの通算担当回数と、過去の実施履歴の一覧です。</p>
+          </div>
+
+          <!-- 通算担当回数ランキング -->
+          <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
+            <div class="bg-slate-50 px-3 py-2 border-b border-slate-100 flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-600">メンバー別累計回数</span>
+              <span class="text-[10px] text-slate-400">※回数の少ない順</span>
+            </div>
+            <div id="history-ranking-list" class="divide-y divide-slate-100 bg-white">
+              <!-- JSで動的に追加 -->
+            </div>
+          </div>
+
+          <!-- 過去の月別履歴ログ -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold text-slate-600 flex items-center gap-1">
+              <i data-lucide="history" class="w-3.5 h-3.5 text-slate-400"></i>過去の担当日ログ
+            </h4>
+            
+            <div class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+              <!-- 7月 -->
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p class="text-xs font-bold text-slate-700 mb-2">2026年7月</p>
+                <div class="space-y-1.5 text-xs text-slate-600">
+                  <div class="flex justify-between border-b border-dashed border-slate-200 pb-1">
+                    <span>7/26(日)</span>
+                    <span class="font-semibold text-slate-800">堂鳳, 森本</span>
+                  </div>
+                  <div class="flex justify-between border-b border-dashed border-slate-200 pb-1">
+                    <span>7/19(日)</span>
+                    <span class="font-semibold text-slate-800">平松, 皆川</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>7/12(日)</span>
+                    <span class="font-semibold text-slate-800">平松, あなた</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 6月 -->
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p class="text-xs font-bold text-slate-700 mb-2">2026年6月</p>
+                <div class="space-y-1.5 text-xs text-slate-600">
+                  <div class="flex justify-between border-b border-dashed border-slate-200 pb-1">
+                    <span>6/28(日)</span>
+                    <span class="font-semibold text-slate-800">平松, 大石</span>
+                  </div>
+                  <div class="flex justify-between border-b border-dashed border-slate-200 pb-1">
+                    <span>6/21(日)</span>
+                    <span class="font-semibold text-slate-800">皆川, 堂鳳</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>6/14(日)</span>
+                    <span class="font-semibold text-slate-800">平松, 皆川</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5月 -->
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p class="text-xs font-bold text-slate-700 mb-2">2026年5月</p>
+                <div class="space-y-1.5 text-xs text-slate-600">
+                  <div class="flex justify-between border-b border-dashed border-slate-200 pb-1">
+                    <span>5/24(日)</span>
+                    <span class="font-semibold text-slate-800">森本, 平松</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>5/10(日)</span>
+                    <span class="font-semibold text-slate-800">堂鳳, 大石</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -181,6 +268,7 @@
     
     const MAX_SLOTS = 4;
 
+    // メンバーマスタ
     const usersMaster = [
       { id: "user_doho", name: "堂鳳", dutyCount: 2 },
       { id: "user_sato", name: "平松", dutyCount: 5 },
@@ -190,7 +278,7 @@
     ];
 
     let mockResponses = {
-      "user_yamada": { "2026-08-01": "ok", "2026-08-02": "maybe", "2026-08-08": "ng" },
+      "user_doho": { "2026-08-01": "ok", "2026-08-02": "maybe", "2026-08-08": "ng" },
       "user_sato": { "2026-08-01": "maybe", "2026-08-02": "ng", "2026-08-08": "ok" },
       "user_tanaka": { "2026-08-01": "ok", "2026-08-02": "ok", "2026-08-08": "maybe" },
       "user_suzuki": { "2026-08-01": "ng", "2026-08-02": "ok", "2026-08-08": "ng" },
@@ -270,13 +358,17 @@
     function switchSubTab(sub) {
       document.getElementById('admin-panel-dates').classList.toggle('hidden', sub !== 'dates');
       document.getElementById('admin-panel-assign').classList.toggle('hidden', sub !== 'assign');
-      document.getElementById('subtab-dates').className = sub === 'dates' ? "flex-1 py-2 text-center text-sm font-bold bg-white text-slate-800 rounded-lg shadow-sm" : "flex-1 py-2 text-center text-sm font-bold text-slate-600 rounded-lg";
-      document.getElementById('subtab-assign').className = sub === 'assign' ? "flex-1 py-2 text-center text-sm font-bold bg-white text-slate-800 rounded-lg shadow-sm" : "flex-1 py-2 text-center text-sm font-bold text-slate-600 rounded-lg";
+      document.getElementById('admin-panel-history').classList.toggle('hidden', sub !== 'history');
+      
+      document.getElementById('subtab-dates').className = sub === 'dates' ? "flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm" : "flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg";
+      document.getElementById('subtab-assign').className = sub === 'assign' ? "flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm" : "flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg";
+      document.getElementById('subtab-history').className = sub === 'history' ? "flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm" : "flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg";
     }
 
     function updateUI() {
       renderParentView();
       renderAdminView();
+      renderHistoryView(); // 🆕 履歴の描画関数を追記
       lucide.createIcons();
     }
 
@@ -436,7 +528,7 @@
           let optionsHtml = `<option value="">-- 担当者 ${index + 1} を選択 --</option>`;
           const myStatus = myAnswers[date] || 'ng';
           if (myStatus !== 'ng') {
-            optionsHtml += `<option value="my_user" ${currentAssigned === 'my_user' ? 'selected' : ''}>🌟 あなた (通算: 0回) [${myStatus === 'ok'?'〇':'△'}]</option>`;
+            optionsHtml += `<option value="my_user" ${currentAssigned === 'my_user' ? 'selected' : ''}>🌟 あなた (通算: 1回) [${myStatus === 'ok'?'〇':'△'}]</option>`;
           }
 
           usersMaster.forEach(u => {
@@ -474,6 +566,44 @@
 
         block.innerHTML = headerHtml + slotsHtml;
         assignContainer.appendChild(block);
+      });
+    }
+
+    // 🆕 履歴タブの表示レンダリング
+    function renderHistoryView() {
+      const rankingContainer = document.getElementById('history-ranking-list');
+      rankingContainer.innerHTML = '';
+
+      // あなた (my_user) も含めた全員のランキングデータを作成
+      const allMembers = [
+        { id: "my_user", name: "あなた", dutyCount: 1, isMe: true },
+        ...usersMaster.map(u => ({ id: u.id, name: u.name, dutyCount: u.dutyCount, isMe: false }))
+      ];
+
+      // 回数の少ない順（昇順）にソートして不公平感を解消しやすくする
+      allMembers.sort((a, b) => a.dutyCount - b.dutyCount);
+
+      allMembers.forEach((member, i) => {
+        const row = document.createElement('div');
+        row.className = `flex justify-between items-center px-4 py-2.5 text-xs ${member.isMe ? 'bg-amber-50/50' : ''}`;
+        
+        // 順位表示用のメダル絵文字など
+        const medal = i === 0 ? '🟢 ' : ''; 
+        const nameText = member.isMe ? `🌟 <strong>あなた</strong>` : member.name;
+
+        row.innerHTML = `
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-400 font-mono w-4">${i + 1}</span>
+            <span>${medal}${nameText}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-700">${member.dutyCount} 回</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
+              ${member.dutyCount <= 1 ? '偏りなし' : (member.dutyCount >= 4 ? '多め' : '標準')}
+            </span>
+          </div>
+        `;
+        rankingContainer.appendChild(row);
       });
     }
 
