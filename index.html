@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>お当番機能 UIシミュレーター Ver.6</title>
+  <title>お当番機能 UIシミュレーター</title>
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -103,7 +103,7 @@
         <span id="admin-status-badge" class="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">準備中</span>
       </div>
 
-      <!-- 役員画面内の小タブ切り替え (3つのタブに変更) -->
+      <!-- 役員画面内の小タブ切り替え -->
       <div class="flex bg-slate-200 rounded-xl p-1 shadow-inner gap-1">
         <button id="subtab-dates" class="flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm" onclick="switchSubTab('dates')">
           ① 日程管理
@@ -124,7 +124,7 @@
             <p class="text-xs text-slate-400">平日の個別追加や不要な日の削除が可能です。</p>
           </div>
 
-          <!-- 🆕 土日祝の自動一括追加ボタン -->
+          <!-- 土日祝の自動一括追加ボタン -->
           <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col gap-2">
             <span class="text-xs font-bold text-slate-600 flex items-center gap-1">
               <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>日程の一括生成ツール
@@ -170,18 +170,24 @@
         </div>
       </div>
 
-      <!-- 👑 👑 役員タブ3: 当番の履歴 (NEW!) -->
+      <!-- 👑 役員タブ3: 当番の履歴 -->
       <div id="admin-panel-history" class="space-y-4 hidden">
         <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
           <div>
             <h3 class="text-sm font-bold text-slate-800 mb-1">お当番実績・履歴</h3>
-            <p class="text-xs text-slate-400">各メンバーの通算担当回数と、過去の実施履歴の一覧です。</p>
+            <p class="text-xs text-slate-400">各メンバーの通算担当回数（割り振り中の分もリアルタイム加算）と平均値との差分です。</p>
+          </div>
+
+          <!-- リアルタイム平均表示板 -->
+          <div class="bg-indigo-900 text-white rounded-xl p-3 flex justify-between items-center shadow-sm">
+            <span class="text-xs font-bold text-indigo-200">現在の全員の平均当番回数:</span>
+            <span id="history-average-badge" class="text-sm font-black bg-indigo-800 px-2.5 py-1 rounded-lg">1.1 回</span>
           </div>
 
           <!-- 通算担当回数ランキング -->
           <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
             <div class="bg-slate-50 px-3 py-2 border-b border-slate-100 flex justify-between items-center">
-              <span class="text-xs font-bold text-slate-600">メンバー別累計回数</span>
+              <span class="text-xs font-bold text-slate-600">メンバー別累計回数と評価</span>
               <span class="text-[10px] text-slate-400">※回数の少ない順</span>
             </div>
             <div id="history-ranking-list" class="divide-y divide-slate-100 bg-white">
@@ -195,7 +201,7 @@
               <i data-lucide="history" class="w-3.5 h-3.5 text-slate-400"></i>過去の担当日ログ
             </h4>
             
-            <div class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+            <div class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
               <!-- 7月 -->
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <p class="text-xs font-bold text-slate-700 mb-2">2026年7月</p>
@@ -263,12 +269,11 @@
   <!-- =================================================== -->
   <script>
     let currentStatus = 'draft';
-    // 初期状態は空、または初期サンプルのみ配置
     let currentDates = ["2026-08-01", "2026-08-02"];
     
     const MAX_SLOTS = 4;
 
-    // メンバーマスタ
+    // メンバーマスタ (5月〜7月の過去の基準当番回数)
     const usersMaster = [
       { id: "user_doho", name: "堂鳳", dutyCount: 2 },
       { id: "user_sato", name: "平松", dutyCount: 5 },
@@ -276,6 +281,9 @@
       { id: "user_suzuki", name: "皆川", dutyCount: 3 },
       { id: "user_watanabe", name: "大石", dutyCount: 0 }
     ];
+
+    // あなた (my_user) の過去回数基準値
+    const myBaseCount = 1;
 
     let mockResponses = {
       "user_doho": { "2026-08-01": "ok", "2026-08-02": "maybe", "2026-08-08": "ng" },
@@ -290,33 +298,50 @@
       "2026-08-02": "maybe"
     };
 
+    // 初期割り当て (あなたは8/1に初期アサインされている)
     let currentAssignments = {
       "2026-08-01": ["my_user", ""], 
       "2026-08-02": [""]      
     };
+
+    // 🆕 過去実績＋現在シミュレータ上で選択されている回数を動的に合算して返す関数
+    function getLiveDutyCount(userId) {
+      // ベースの過去回数
+      let base = (userId === 'my_user') ? myBaseCount : 0;
+      if (userId !== 'my_user') {
+        const user = usersMaster.find(u => u.id === userId);
+        if (user) base = user.dutyCount;
+      }
+
+      // 現在アサインされている数を加算
+      let assignedCount = 0;
+      Object.keys(currentAssignments).forEach(date => {
+        currentAssignments[date].forEach(slotUser => {
+          if (slotUser === userId) {
+            assignedCount++;
+          }
+        });
+      });
+
+      return base + assignedCount;
+    }
 
     function getWeekday(dateStr) {
       const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
       return weekdays[new Date(dateStr).getDay()];
     }
 
-    // 🆕 土日祝の自動判定・一括追加ロジック (2026年8月対象)
     function autoAddWeekendsAndHolidays() {
       const year = 2026;
-      const month = 8; // 8月 (1-indexed)
-      
-      // 2026年8月の祝日データ: 8/11 (山の日), 8/12 (山の日の振替休日)
+      const month = 8;
       const holidays202608 = ["2026-08-11", "2026-08-12"];
-      
       let addedCount = 0;
       
-      // 8月1日から31日までループして判定
       for (let day = 1; day <= 31; day++) {
         const dateObj = new Date(year, month - 1, day);
         const dayStr = String(day).padStart(2, '0');
         const dateStr = `${year}-08-${dayStr}`;
-        
-        const dayOfWeek = dateObj.getDay(); // 0:日, 6:土
+        const dayOfWeek = dateObj.getDay();
         const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
         const isHoliday = holidays202608.includes(dateStr);
         
@@ -327,8 +352,7 @@
           }
         }
       }
-      
-      currentDates.sort(); // 日付順に並び替え
+      currentDates.sort();
       updateUI();
       alert(`2026年8月の土日祝（山の日・振替休日を含む）を自動追加しました！\n(新規追加: ${addedCount}件)`);
     }
@@ -368,7 +392,7 @@
     function updateUI() {
       renderParentView();
       renderAdminView();
-      renderHistoryView(); // 🆕 履歴の描画関数を追記
+      renderHistoryView();
       lucide.createIcons();
     }
 
@@ -399,8 +423,6 @@
 
       currentDates.forEach(date => {
         const day = date.split('-')[2]; const w = getWeekday(date); const currentSelection = myAnswers[date] || 'ng';
-        
-        // 2026年8月の祝日判定
         const isHoli = (date === "2026-08-11" || date === "2026-08-12");
         const dayColor = (w === '日' || isHoli) ? 'text-red-500' : (w === '土' ? 'text-blue-500' : 'text-slate-700');
         const displayW = isHoli ? "祝" : w;
@@ -451,7 +473,7 @@
     function saveParentResponses() { alert("回答を保存しました！"); }
 
     // ===================================================
-    // 👑 役員画面
+    // 👑 役員画面 (割り振りセレクトボックスのリアルタイム表示対応)
     // ===================================================
     function renderAdminView() {
       const badge = document.getElementById('admin-status-badge');
@@ -500,8 +522,6 @@
         const dayColor = (w === '日' || isHoli) ? 'text-red-500' : (w === '土' ? 'text-blue-500' : 'text-slate-700');
         const displayW = isHoli ? "祝" : w;
         
-        const isSelectDisabled = ''; 
-
         if (!currentAssignments[date]) {
           currentAssignments[date] = [""];
         }
@@ -527,15 +547,20 @@
           
           let optionsHtml = `<option value="">-- 担当者 ${index + 1} を選択 --</option>`;
           const myStatus = myAnswers[date] || 'ng';
+          
+          // あなた (my_user) のリアルタイム通算を取得してセレクトボックスのテキストに反映
           if (myStatus !== 'ng') {
-            optionsHtml += `<option value="my_user" ${currentAssigned === 'my_user' ? 'selected' : ''}>🌟 あなた (通算: 1回) [${myStatus === 'ok'?'〇':'△'}]</option>`;
+            const liveMeCount = getLiveDutyCount('my_user');
+            optionsHtml += `<option value="my_user" ${currentAssigned === 'my_user' ? 'selected' : ''}>🌟 あなた (通算: ${liveMeCount}回) [${myStatus === 'ok'?'〇':'回答可'}]</option>`;
           }
 
+          // 他のメンバーのリアルタイム通算を取得してセレクトボックスのテキストに反映
           usersMaster.forEach(u => {
             const status = mockResponses[u.id]?.[date] || 'ng';
             if (status === 'ok' || status === 'maybe') {
               const icon = status === 'ok' ? '〇' : '△';
-              optionsHtml += `<option value="${u.id}" ${currentAssigned === u.id ? 'selected' : ''}>${u.name} (通算: ${u.dutyCount}回) [${icon}]</option>`;
+              const liveCount = getLiveDutyCount(u.id);
+              optionsHtml += `<option value="${u.id}" ${currentAssigned === u.id ? 'selected' : ''}>${u.name} (通算: ${liveCount}回) [${icon}]</option>`;
             }
           });
 
@@ -543,7 +568,8 @@
           usersMaster.forEach(u => {
             const status = mockResponses[u.id]?.[date] || 'ng';
             if (status === 'ng') {
-              optionsHtml += `<option value="${u.id}" disabled class="text-slate-300">${u.name} (通算: ${u.dutyCount}回) [×不可]</option>`;
+              const liveCount = getLiveDutyCount(u.id);
+              optionsHtml += `<option value="${u.id}" disabled class="text-slate-300">${u.name} (通算: ${liveCount}回) [×不可]</option>`;
             }
           });
 
@@ -555,7 +581,7 @@
 
           slotsHtml += `
             <div class="flex items-center gap-2">
-              <select ${isSelectDisabled} class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-700 shadow-sm focus:outline-none focus:bg-white focus:border-indigo-500" onchange="assignUser('${date}', ${index}, this.value)">
+              <select class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-700 shadow-sm focus:outline-none focus:bg-white focus:border-indigo-500" onchange="assignUser('${date}', ${index}, this.value)">
                 ${optionsHtml}
               </select>
               ${deleteSlotBtn}
@@ -569,20 +595,30 @@
       });
     }
 
-// 🆕 履歴タブの表示レンダリング (平均値ベースの相対評価版)
+    // ===================================================
+    // 👑 履歴タブ (リアルタイム平均＆相対評価±数値表示対応)
+    // ===================================================
     function renderHistoryView() {
       const rankingContainer = document.getElementById('history-ranking-list');
       rankingContainer.innerHTML = '';
 
-      // あなた (my_user) も含めた全員のランキングデータを作成
+      // あなたも含めた全員の「現在のリアルタイム通算回数」を反映したデータ一覧を作る
       const allMembers = [
-        { id: "my_user", name: "あなた", dutyCount: 1, isMe: true },
-        ...usersMaster.map(u => ({ id: u.id, name: u.name, dutyCount: u.dutyCount, isMe: false }))
-      ];
+        { id: "my_user", name: "あなた", isMe: true },
+        ...usersMaster.map(u => ({ id: u.id, name: u.name, isMe: false }))
+      ].map(member => {
+        return {
+          ...member,
+          dutyCount: getLiveDutyCount(member.id) // 🆕 ここでリアルタイム回数を計算！
+        };
+      });
 
-      // 1. 全員の平均回数を計算
+      // 1. 全員の平均回数をリアルタイム計算
       const totalCount = allMembers.reduce((sum, member) => sum + member.dutyCount, 0);
       const averageCount = allMembers.length > 0 ? (totalCount / allMembers.length) : 0;
+
+      // 平均表示バッジを更新 (小数点第1位まで)
+      document.getElementById('history-average-badge').innerText = `${averageCount.toFixed(1)} 回`;
 
       // 回数の少ない順（昇順）にソート
       allMembers.sort((a, b) => a.dutyCount - b.dutyCount);
@@ -594,18 +630,21 @@
         const medal = i === 0 ? '🟢 ' : ''; 
         const nameText = member.isMe ? `🌟 <strong>あなた</strong>` : member.name;
 
-        // 2. 平均との差分から相対判定
-        let statusText = '標準';
-        let badgeClass = 'bg-slate-100 text-slate-500'; // 標準（グレー）
-
+        // 2. 平均との差分計算
         const diff = member.dutyCount - averageCount;
+        const diffText = diff >= 0 ? `+${diff.toFixed(1)}` : `${diff.toFixed(1)}`; // +0.5 や -1.2 の文字列を生成
+
+        let statusText = '標準';
+        let badgeClass = 'bg-slate-100 text-slate-500 border border-slate-200'; // 標準（グレー）
 
         if (diff >= 1.0) {
-          statusText = '多め';
-          badgeClass = 'bg-red-50 text-red-600 border border-red-100'; // 多め（赤）
+          statusText = `多め (${diffText})`;
+          badgeClass = 'bg-red-50 text-red-600 border border-red-200 font-bold'; // 多め（赤）
         } else if (diff <= -1.0) {
-          statusText = '少なめ';
-          badgeClass = 'bg-emerald-50 text-emerald-600 border border-emerald-100'; // 少なめ（緑）
+          statusText = `少なめ (${diffText})`;
+          badgeClass = 'bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold'; // 少なめ（緑）
+        } else {
+          statusText = `標準 (${diffText})`;
         }
 
         row.innerHTML = `
@@ -615,7 +654,7 @@
           </div>
           <div class="flex items-center gap-2">
             <span class="font-bold text-slate-700">${member.dutyCount} 回</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold ${badgeClass}">
+            <span class="text-[10px] px-2 py-0.5 rounded-md ${badgeClass}">
               ${statusText}
             </span>
           </div>
@@ -623,6 +662,7 @@
         rankingContainer.appendChild(row);
       });
     }
+
     function addSlot(date) {
       if (currentAssignments[date].length >= MAX_SLOTS) return;
       currentAssignments[date].push("");
@@ -634,8 +674,10 @@
       updateUI();
     }
 
+    // 🆕 割り振られた瞬間に全体UIをアップデートしてリアルタイム再計算
     function assignUser(date, index, userId) {
       currentAssignments[date][index] = userId;
+      updateUI(); // これを呼ぶことで、セレクトボックス内の数字も履歴タブのランキングも即座に再描画されます！
     }
 
     function deleteDate(date) {
