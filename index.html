@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>お当番 UIシミュレーター Ver.10</title>
+  <title>お当番機能 UIシミュレーター</title>
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -14,73 +14,77 @@
 </head>
 <body class="bg-slate-50 min-h-screen pb-24">
 
-  <!-- ⚙️ デバッグ用：ステータスパネル -->
-  <div class="bg-slate-800 text-white p-2 text-[10px] shadow-inner">
-    <div class="max-w-md mx-auto flex items-center justify-between gap-2">
-      <span class="font-bold text-slate-400">⚙️ 状態切替:</span>
+  <!-- ⚙️ デバッグ用：ステータス強制切り替えパネル -->
+  <div class="bg-slate-800 text-white p-3 text-xs shadow-inner">
+    <div class="max-w-md mx-auto flex flex-wrap items-center justify-between gap-2">
+      <span class="font-bold text-slate-300">⚙️ シミュレータ状態切り替え:</span>
       <div class="flex bg-slate-700 rounded-lg p-0.5 border border-slate-600">
-        <button onclick="setSystemStatus('draft')" id="btn-status-draft" class="px-2 py-0.5 rounded font-bold bg-slate-900 text-amber-400">1.準備中</button>
-        <button onclick="setSystemStatus('open')" id="btn-status-open" class="px-2 py-0.5 rounded font-bold text-slate-400">2.募集中</button>
-        <button onclick="setSystemStatus('closed')" id="btn-status-closed" class="px-2 py-0.5 rounded font-bold text-slate-400">3.確定</button>
+        <button onclick="setSystemStatus('draft')" id="btn-status-draft" class="px-2.5 py-1 rounded font-bold bg-slate-900 text-amber-400">1.準備中</button>
+        <button onclick="setSystemStatus('open')" id="btn-status-open" class="px-2.5 py-1 rounded font-bold text-slate-400">2.募集中</button>
+        <button onclick="setSystemStatus('closed')" id="btn-status-closed" class="px-2.5 py-1 rounded font-bold text-slate-400">3.確定ロック</button>
       </div>
     </div>
   </div>
 
-  <!-- 📱 メインタブ -->
+  <!-- 📱 メイン画面切り替えタブ -->
   <div class="bg-white border-b sticky top-0 z-40 shadow-sm">
-    <div class="max-w-md mx-auto flex justify-around text-sm">
-      <button id="tab-parent" class="flex-1 py-3 text-center font-bold text-blue-600 border-b-2 border-blue-600 focus:outline-none" onclick="switchMainTab('parent')">
-        <i data-lucide="user" class="inline-block w-4 h-4 mr-1 align-middle"></i>保護者画面
+    <div class="max-w-md mx-auto flex justify-around">
+      <button id="tab-parent" class="flex-1 py-4 text-center font-bold text-blue-600 border-b-2 border-blue-600 focus:outline-none" onclick="switchMainTab('parent')">
+        <i data-lucide="user" class="inline-block w-5 h-5 mr-1 align-middle"></i>保護者画面
       </button>
-      <button id="tab-admin" class="flex-1 py-3 text-center font-bold text-gray-500 border-b-2 border-transparent focus:outline-none" onclick="switchMainTab('admin')">
-        <i data-lucide="shield-check" class="inline-block w-4 h-4 mr-1 align-middle"></i>役員設定
+      <button id="tab-admin" class="flex-1 py-4 text-center font-bold text-gray-500 border-b-2 border-transparent focus:outline-none" onclick="switchMainTab('admin')">
+        <i data-lucide="shield-check" class="inline-block w-5 h-5 mr-1 align-middle"></i>役員設定画面
       </button>
     </div>
   </div>
 
-  <div class="max-w-md mx-auto px-4 mt-3">
+  <div class="max-w-md mx-auto px-4 mt-4">
 
     <!-- =================================================== -->
     <!-- 📱 保護者用画面 (DutyParentResponse) -->
     <!-- =================================================== -->
-    <div id="view-parent" class="space-y-3">
+    <div id="view-parent" class="space-y-4">
       
       <!-- 確定時の担当日ハイライト -->
-      <div id="parent-announcement" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3 rounded-xl shadow-sm hidden">
-        <div class="flex items-center gap-2">
-          <i data-lucide="award" class="w-5 h-5 text-purple-200"></i>
-          <div class="text-xs">
-            <span class="font-medium text-purple-200">あなたの担当日: </span>
-            <span class="font-bold text-sm" id="assigned-date-text">未確定</span>
+      <div id="parent-announcement" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-2xl shadow-md hidden">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-white/20 rounded-xl"><i data-lucide="award" class="w-6 h-6"></i></div>
+          <div>
+            <p class="text-xs text-purple-200 font-medium">あなたのお当番担当日</p>
+            <p class="text-lg font-bold" id="assigned-date-text">未確定</p>
           </div>
         </div>
       </div>
 
       <!-- メインカード -->
-      <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-            <i data-lucide="calendar-range" class="text-blue-600 w-4 h-4"></i>
-            <span>8月 希望回答</span>
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="calendar-range" class="text-blue-600"></i>
+            <span>2026年8月 お当番希望回答</span>
           </h2>
-          <span id="parent-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full">状態</span>
+          <span id="parent-badge" class="text-xs font-bold px-2.5 py-1 rounded-full">状態</span>
         </div>
         
-        <!-- 募集開始前のアナウンス -->
-        <div id="parent-empty-state" class="py-6 text-center space-y-2 hidden">
-          <i data-lucide="clock" class="w-8 h-8 text-amber-500 mx-auto"></i>
-          <p class="text-xs font-bold text-slate-600">現在は募集していません</p>
+        <!-- 募集開始前のアナウンス表示エリア -->
+        <div id="parent-empty-state" class="py-8 text-center space-y-3 hidden">
+          <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto">
+            <i data-lucide="clock" class="w-6 h-6"></i>
+          </div>
+          <p class="text-sm font-bold text-slate-700">現在、来月のお当番は募集していません</p>
+          <p class="text-xs text-slate-400">役員さんからの募集案内メッセージをお待ちください。</p>
         </div>
 
-        <!-- 回答フォーム -->
-        <div id="parent-form-area" class="space-y-3">
-          <p id="parent-lock-msg" class="text-[11px] text-red-500 font-bold hidden">※当番確定のため回答はロックされています。</p>
+        <!-- 回答フォームエリア -->
+        <div id="parent-form-area" class="space-y-4">
+          <p id="parent-lock-msg" class="text-xs text-red-500 font-bold hidden">※お当番が確定したため、回答はロックされています。変更が必要な場合は役員さんにご連絡ください。</p>
+          <p id="parent-guide-msg" class="text-xs text-slate-500">※土日祝および調整が必要な日程です。ご都合を入力してください。</p>
 
           <!-- 日付リスト -->
-          <div id="parent-date-list" class="space-y-2"></div>
+          <div id="parent-date-list" class="space-y-3"></div>
 
-          <button id="parent-save-btn" class="w-full mt-4 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition" onclick="saveParentResponses()">
-            保存する
+          <button id="parent-save-btn" class="w-full mt-6 bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition" onclick="saveParentResponses()">
+            回答を保存する
           </button>
         </div>
       </div>
@@ -90,110 +94,135 @@
     <!-- =================================================== -->
     <!-- 👑 役員用画面 (DutyAdminManage) -->
     <!-- =================================================== -->
-    <div id="view-admin" class="space-y-3 hidden">
+    <div id="view-admin" class="space-y-4 hidden">
       
-      <div class="flex items-center justify-between bg-indigo-50 p-2 rounded-lg border border-indigo-100">
-        <span class="text-[10px] font-bold text-indigo-900 flex items-center gap-1">
-          <i data-lucide="info" class="w-3.5 h-3.5"></i> 対象: 8月
+      <div class="flex items-center justify-between bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+        <span class="text-xs font-bold text-indigo-900 flex items-center gap-1">
+          <i data-lucide="info" class="w-4 h-4"></i> 対象月: 2026年8月
         </span>
-        <span id="admin-status-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">準備中</span>
+        <span id="admin-status-badge" class="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">準備中</span>
       </div>
 
-      <!-- 役員画面内の小タブ -->
-      <div class="flex bg-slate-200 rounded-lg p-0.5 gap-0.5 text-xs">
-        <button id="subtab-dates" class="flex-1 py-1.5 text-center font-bold bg-white text-slate-800 rounded shadow-sm" onclick="switchSubTab('dates')">
+      <!-- 役員画面内の小タブ切り替え -->
+      <div class="flex bg-slate-200 rounded-xl p-1 shadow-inner gap-1">
+        <button id="subtab-dates" class="flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm" onclick="switchSubTab('dates')">
           ① 日程管理
         </button>
-        <button id="subtab-assign" class="flex-1 py-1.5 text-center font-bold text-slate-600 rounded" onclick="switchSubTab('assign')">
+        <button id="subtab-assign" class="flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg" onclick="switchSubTab('assign')">
           ② 割り振り
         </button>
-        <button id="subtab-history" class="flex-1 py-1.5 text-center font-bold text-slate-600 rounded" onclick="switchSubTab('history')">
-          ③ 履歴・実績
+        <button id="subtab-history" class="flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg" onclick="switchSubTab('history')">
+          ③ 当番の履歴
         </button>
       </div>
 
       <!-- 👑 役員タブ1: 日程の管理 -->
-      <div id="admin-panel-dates" class="space-y-3">
-        <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm space-y-3">
-          
+      <div id="admin-panel-dates" class="space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
+          <div>
+            <h3 class="text-sm font-bold text-slate-800 mb-1">募集日程の設定</h3>
+            <p class="text-xs text-slate-400">平日の個別追加や不要な日の削除が可能です。</p>
+          </div>
+
           <!-- 土日祝の自動一括追加ボタン -->
-          <button class="w-full bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition" onclick="autoAddWeekendsAndHolidays()">
-            <i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>8月の土日祝を自動追加
-          </button>
-
-          <!-- チップの並び -->
-          <div id="admin-date-chips" class="flex flex-wrap gap-1.5 py-1"></div>
-
-          <!-- 手動追加 -->
-          <div class="flex gap-1.5 border-t pt-3">
-            <input type="date" id="manual-date-input" class="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-indigo-500">
-            <button class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-0.5 hover:bg-slate-900 transition" onclick="addManualDate()">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>追加
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col gap-2">
+            <span class="text-xs font-bold text-slate-600 flex items-center gap-1">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>日程の一括生成ツール
+            </span>
+            <button class="w-full bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 text-indigo-700 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-sm active:scale-[0.99]" onclick="autoAddWeekendsAndHolidays()">
+              <i data-lucide="calendar-days" class="w-4 h-4"></i>8月の「土日祝」をすべて自動追加する
             </button>
           </div>
 
-          <button id="admin-publish-btn" class="w-full mt-2 bg-indigo-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-indigo-700 transition flex items-center justify-center gap-1" onclick="publishSchedules()">
-            <i data-lucide="megaphone" class="w-4 h-4"></i>募集を開始する
+          <!-- チップの並び -->
+          <div id="admin-date-chips" class="flex flex-wrap gap-2 py-2"></div>
+
+          <!-- 手動追加 -->
+          <div class="flex gap-2 border-t pt-3">
+            <input type="date" id="manual-date-input" class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+            <button class="bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1 hover:bg-slate-900 transition" onclick="addManualDate()">
+              <i data-lucide="plus" class="w-4 h-4"></i>追加
+            </button>
+          </div>
+
+          <button id="admin-publish-btn" class="w-full mt-2 bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-indigo-700 transition flex items-center justify-center gap-1" onclick="publishSchedules()">
+            <i data-lucide="megaphone" class="w-4 h-4"></i>日程を確定して募集開始
           </button>
         </div>
       </div>
 
       <!-- 👑 役員タブ2: 当番の割り振り -->
-      <div id="admin-panel-assign" class="space-y-3">
-        <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm space-y-3">
-          <p id="admin-lock-hint" class="text-[11px] text-purple-600 font-bold hidden">✓ 確定済（いつでも変更・再保存が可能です）</p>
+      <div id="admin-panel-assign" class="space-y-4 hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
+          <div>
+            <h3 class="text-sm font-bold text-slate-800 mb-1">当番の割り当て調整</h3>
+            <p class="text-xs text-slate-400">各日程に必要な人数分だけ「枠を追加（最大4枠）」して割り振ってください。</p>
+            <p id="admin-lock-hint" class="text-xs text-purple-600 font-bold mt-1 hidden">✓ 現在お当番は確定・ロック中ですが、役員はいつでもメンバーを調整して「再保存」が可能です。</p>
+          </div>
 
           <!-- 割り振りリスト -->
-          <div id="admin-assign-list" class="space-y-3"></div>
+          <div id="admin-assign-list" class="space-y-4"></div>
 
-          <!-- 保存/確定ボタン -->
-          <button id="admin-lock-btn" class="w-full mt-2 bg-emerald-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-emerald-700 transition flex items-center justify-center gap-1" onclick="lockAssignments()">
-            <i data-lucide="lock" class="w-4 h-4"></i>この内容で確定する
+          <!-- ボタン -->
+          <button id="admin-lock-btn" class="w-full mt-4 bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-emerald-700 transition flex items-center justify-center gap-1" onclick="lockAssignments()">
+            <i data-lucide="lock" class="w-4 h-4"></i>この内容で当番を確定・ロックする
           </button>
         </div>
       </div>
 
       <!-- 👑 役員タブ3: 当番の履歴 -->
-      <div id="admin-panel-history" class="space-y-3 hidden">
-        <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm space-y-3">
+      <div id="admin-panel-history" class="space-y-4 hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
+          <div>
+            <h3 class="text-sm font-bold text-slate-800 mb-1">お当番実績・履歴</h3>
+            <p class="text-xs text-slate-400">各メンバーの通算担当回数（割り振り中の分もリアルタイム加算）と平均値との差分です。</p>
+          </div>
 
-          <!-- リアルタイム平均表示 -->
-          <div class="bg-indigo-900 text-white rounded-lg p-2.5 flex justify-between items-center text-xs shadow-sm">
-            <span class="font-bold text-indigo-200">平均当番回数:</span>
-            <span id="history-average-badge" class="font-black bg-indigo-800 px-2 py-0.5 rounded">0.0 回</span>
+          <!-- リアルタイム平均表示板 -->
+          <div class="bg-indigo-900 text-white rounded-xl p-3 flex justify-between items-center shadow-sm">
+            <span class="text-xs font-bold text-indigo-200">現在の全員の平均当番回数:</span>
+            <span id="history-average-badge" class="text-sm font-black bg-indigo-800 px-2.5 py-1 rounded-lg">1.1 回</span>
           </div>
 
           <!-- 通算担当回数ランキング -->
-          <div class="border border-slate-100 rounded-lg overflow-hidden shadow-sm">
-            <div class="bg-slate-50 px-2.5 py-1.5 border-b border-slate-100 flex justify-between items-center text-[10px]">
-              <span class="font-bold text-slate-500">メンバー別累計回数</span>
-              <span class="text-slate-400">昇順</span>
+          <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
+            <div class="bg-slate-50 px-3 py-2 border-b border-slate-100 flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-600">メンバー別累計回数と評価</span>
+              <span class="text-[10px] text-slate-400">※回数の少ない順</span>
             </div>
-            <div id="history-ranking-list" class="divide-y divide-slate-100 bg-white"></div>
+            <div id="history-ranking-list" class="divide-y divide-slate-100 bg-white">
+              <!-- JSで動的に追加 -->
+            </div>
           </div>
 
-          <!-- 後追い実績編集のモックヒント -->
-          <div class="bg-slate-50 rounded-lg p-2 border border-slate-200 text-slate-400 text-[10px] space-y-0.5">
-            <p class="font-bold text-slate-500 flex items-center gap-1">
-              <i data-lucide="wrench" class="w-3 h-3"></i> 実績調整（将来拡張用）
+          <!-- 💡 将来の過去履歴編集機能のモックヒント -->
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-slate-500 text-[11px] space-y-1">
+            <p class="font-bold text-slate-600 flex items-center gap-1">
+              <i data-lucide="wrench" class="w-3.5 h-3.5"></i> 将来的な拡張アイデア機能
             </p>
-            <p>過去の累計回数を役員が直接書き換え・後追い保存できる機能をここに追加可能です。</p>
+            <p>「過去実績の調整モード」をONにすると、上記ランキングの回数を役員が直接手入力で書き換え・後追い保存できるよう拡張可能です（実装準備済）。</p>
           </div>
 
-          <!-- 過去ログ -->
-          <div class="space-y-2">
-            <h4 class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
-              <i data-lucide="history" class="w-3 h-3"></i> 過去ログ
+          <!-- 過去の月別履歴ログ -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold text-slate-600 flex items-center gap-1">
+              <i data-lucide="history" class="w-3.5 h-3.5 text-slate-400"></i>過去の担当日ログ
             </h4>
             
-            <div class="space-y-1.5 max-h-[120px] overflow-y-auto pr-1">
-              <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 text-[11px] text-slate-500">
-                <p class="font-bold text-slate-600 mb-0.5">7月</p>
-                <div class="flex justify-between border-b border-dashed border-slate-200 pb-0.5 mb-0.5">
-                  <span>7/26(日)</span> <span class="font-semibold text-slate-700">堂鳳, 森本</span>
-                </div>
-                <div class="flex justify-between">
-                  <span>7/19(日)</span> <span class="font-semibold text-slate-700">平松, 皆川</span>
+            <div class="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+              <!-- 7月 -->
+              <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                <p class="text-xs font-bold text-slate-700 mb-1.5">2026年7月</p>
+                <div class="space-y-1 text-xs text-slate-600">
+                  <div class="flex justify-between border-b border-dashed border-slate-200 pb-0.5">
+                    <span>7/26(日)</span> <span class="font-semibold text-slate-800">堂鳳, 森本</span>
+                  </div>
+                  <div class="flex justify-between border-b border-dashed border-slate-200 pb-0.5">
+                    <span>7/19(日)</span> <span class="font-semibold text-slate-800">平松, 皆川</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>7/12(日)</span> <span class="font-semibold text-slate-800">平松, あなた</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -273,7 +302,7 @@
         }
       }
       currentDates.sort(); updateUI();
-      alert(`8月の土日祝を自動追加しました！ (追加: ${addedCount}件)`);
+      alert(`2026年8月の土日祝を自動追加しました！\n(新規追加: ${addedCount}件)`);
     }
 
     window.onload = function() { updateUI(); };
@@ -282,7 +311,7 @@
       currentStatus = status;
       ['draft', 'open', 'closed'].forEach(s => {
         const btn = document.getElementById(`btn-status-${s}`);
-        btn.className = s === status ? "px-2 py-0.5 rounded font-bold bg-slate-900 text-amber-400" : "px-2 py-0.5 rounded font-bold text-slate-400 hover:text-slate-200";
+        btn.className = s === status ? "px-2.5 py-1 rounded font-bold bg-slate-900 text-amber-400" : "px-2.5 py-1 rounded font-bold text-slate-400 hover:text-slate-200";
       });
       updateUI();
     }
@@ -290,8 +319,8 @@
     function switchMainTab(role) {
       document.getElementById('view-parent').classList.toggle('hidden', role !== 'parent');
       document.getElementById('view-admin').classList.toggle('hidden', role !== 'admin');
-      document.getElementById('tab-parent').className = role === 'parent' ? "flex-1 py-3 text-center font-bold text-blue-600 border-b-2 border-blue-600 focus:outline-none" : "flex-1 py-3 text-center font-bold text-gray-500 border-b-2 border-transparent focus:outline-none";
-      document.getElementById('tab-admin').className = role === 'admin' ? "flex-1 py-3 text-center font-bold text-indigo-600 border-b-2 border-indigo-600 focus:outline-none" : "flex-1 py-3 text-center font-bold text-gray-500 border-b-2 border-transparent focus:outline-none";
+      document.getElementById('tab-parent').className = role === 'parent' ? "flex-1 py-4 text-center font-bold text-blue-600 border-b-2 border-blue-600 focus:outline-none" : "flex-1 py-4 text-center font-bold text-gray-500 border-b-2 border-transparent focus:outline-none";
+      document.getElementById('tab-admin').className = role === 'admin' ? "flex-1 py-4 text-center font-bold text-indigo-600 border-b-2 border-indigo-600 focus:outline-none" : "flex-1 py-4 text-center font-bold text-gray-500 border-b-2 border-transparent focus:outline-none";
       if (role === 'admin') mockResponses["my_user"] = myAnswers;
       updateUI();
     }
@@ -301,7 +330,7 @@
       document.getElementById('admin-panel-assign').classList.toggle('hidden', sub !== 'assign');
       document.getElementById('admin-panel-history').classList.toggle('hidden', sub !== 'history');
       ['dates', 'assign', 'history'].forEach(s => {
-        document.getElementById(`subtab-${s}`).className = sub === s ? "flex-1 py-1.5 text-center font-bold bg-white text-slate-800 rounded shadow-sm" : "flex-1 py-1.5 text-center font-bold text-slate-600 rounded";
+        document.getElementById(`subtab-${s}`).className = sub === s ? "flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm" : "flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg";
       });
     }
 
@@ -312,23 +341,24 @@
       lucide.createIcons();
     }
 
-    // 📱 保護者画面
+    // 📱 保護者画面レンダリング
     function renderParentView() {
       const badge = document.getElementById('parent-badge');
       const emptyState = document.getElementById('parent-empty-state');
       const formArea = document.getElementById('parent-form-area');
       const lockMsg = document.getElementById('parent-lock-msg');
+      const guideMsg = document.getElementById('parent-guide-msg');
       const saveBtn = document.getElementById('parent-save-btn');
       
       if (currentStatus === 'draft') {
-        badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600"; badge.innerText = "準備中";
+        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600"; badge.innerText = "準備中";
         emptyState.classList.remove('hidden'); formArea.classList.add('hidden');
       } else if (currentStatus === 'open') {
-        badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700"; badge.innerText = "受付中";
-        emptyState.classList.add('hidden'); formArea.classList.remove('hidden'); lockMsg.classList.add('hidden'); saveBtn.classList.remove('hidden');
+        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-green-100 text-green-700"; badge.innerText = "回答受付中";
+        emptyState.classList.add('hidden'); formArea.classList.remove('hidden'); lockMsg.classList.add('hidden'); guideMsg.classList.remove('hidden'); saveBtn.classList.remove('hidden');
       } else {
-        badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700"; badge.innerText = "確定";
-        emptyState.classList.add('hidden'); formArea.classList.remove('hidden'); lockMsg.classList.remove('hidden'); saveBtn.classList.add('hidden');
+        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700"; badge.innerText = "確定・締切";
+        emptyState.classList.add('hidden'); formArea.classList.remove('hidden'); lockMsg.classList.remove('hidden'); guideMsg.classList.add('hidden'); saveBtn.classList.add('hidden');
       }
 
       const container = document.getElementById('parent-date-list');
@@ -341,16 +371,16 @@
         const isDisabled = currentStatus === 'closed' ? 'disabled' : '';
 
         const item = document.createElement('div');
-        item.className = "flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-100 shadow-sm";
+        item.className = "flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 shadow-sm";
         item.innerHTML = `
-          <div class="text-xs">
-            <span class="font-bold text-slate-800">${date.split('-')[1]}/${day}</span>
-            <span class="font-bold ${dayColor} ml-0.5">(${isHoli?'祝':w})</span>
+          <div>
+            <span class="text-sm font-bold text-slate-800">${date.split('-')[1]}/${day}</span>
+            <span class="text-xs font-bold ${dayColor} ml-1">(${isHoli?'祝':w})</span>
           </div>
           <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-inner">
-            <button onclick="setAnswer('${date}', 'ok')" ${isDisabled} class="px-2.5 py-1 text-xs font-bold rounded toggle-btn ${currentSelection === 'ok' ? 'bg-green-100 text-green-700' : 'text-gray-400'}">〇</button>
-            <button onclick="setAnswer('${date}', 'maybe')" ${isDisabled} class="px-2.5 py-1 text-xs font-bold rounded toggle-btn ${currentSelection === 'maybe' ? 'bg-amber-100 text-amber-700' : 'text-gray-400'}">△</button>
-            <button onclick="setAnswer('${date}', 'ng')" ${isDisabled} class="px-2.5 py-1 text-xs font-bold rounded toggle-btn ${currentSelection === 'ng' ? 'bg-red-100 text-red-700' : 'text-gray-400'}">×</button>
+            <button onclick="setAnswer('${date}', 'ok')" ${isDisabled} class="px-3 py-1.5 text-xs font-bold rounded-md toggle-btn ${currentSelection === 'ok' ? 'bg-green-100 text-green-700' : 'text-gray-400'}">〇</button>
+            <button onclick="setAnswer('${date}', 'maybe')" ${isDisabled} class="px-3 py-1.5 text-xs font-bold rounded-md toggle-btn ${currentSelection === 'maybe' ? 'bg-amber-100 text-amber-700' : 'text-gray-400'}">△</button>
+            <button onclick="setAnswer('${date}', 'ng')" ${isDisabled} class="px-3 py-1.5 text-xs font-bold rounded-md toggle-btn ${currentSelection === 'ng' ? 'bg-red-100 text-red-700' : 'text-gray-400'}">×</button>
           </div>
         `;
         container.appendChild(item);
@@ -361,30 +391,30 @@
       const announcement = document.getElementById('parent-announcement');
       if (currentStatus === 'closed') {
         announcement.classList.remove('hidden');
-        document.getElementById('assigned-date-text').innerText = myAssignedDates.length > 0 ? myAssignedDates.map(d => `${d.split('-')[1]}/${d.split('-')[2]}(${getWeekday(d)})`).join(', ') : "今月は担当なし";
+        document.getElementById('assigned-date-text').innerText = myAssignedDates.length > 0 ? myAssignedDates.map(d => `${d.split('-')[1]}/${d.split('-')[2]}(${getWeekday(d)})`).join(', ') + " に決定しました！" : "今月の担当日はありません";
       } else { announcement.classList.add('hidden'); }
     }
 
     function setAnswer(date, value) { if (currentStatus !== 'closed') { myAnswers[date] = value; updateUI(); } }
-    function saveParentResponses() { alert("保存しました！"); }
+    function saveParentResponses() { alert("回答を保存しました！"); }
 
-    // 👑 役員画面
+    // 👑 役員画面（重複防止対応ロジック）
     function renderAdminView() {
       const badge = document.getElementById('admin-status-badge');
       const lockHint = document.getElementById('admin-lock-hint');
       const lockBtn = document.getElementById('admin-lock-btn');
 
-      if (currentStatus === 'draft') { badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800"; badge.innerText = "1.日程作成中"; lockHint.classList.add('hidden'); lockBtn.innerHTML = `<i data-lucide="lock" class="w-3.5 h-3.5"></i>この内容で確定する`; }
-      else if (currentStatus === 'open') { badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-green-100 text-green-800"; badge.innerText = "2.回答受付中"; lockHint.classList.add('hidden'); lockBtn.innerHTML = `<i data-lucide="lock" class="w-3.5 h-3.5"></i>この内容で確定する`; }
-      else { badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-800"; badge.innerText = "3.確定済"; lockHint.classList.remove('hidden'); lockBtn.innerHTML = `<i data-lucide="save" class="w-3.5 h-3.5"></i>メンバー変更を保存`; }
+      if (currentStatus === 'draft') { badge.className = "text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800"; badge.innerText = "1.日程作成中"; lockHint.classList.add('hidden'); lockBtn.innerHTML = `<i data-lucide="lock" class="w-4 h-4"></i>この内容で当番を確定・ロックする`; }
+      else if (currentStatus === 'open') { badge.className = "text-xs font-bold px-2 py-0.5 rounded-md bg-green-100 text-green-800"; badge.innerText = "2.保護者回答受付中"; lockHint.classList.add('hidden'); lockBtn.innerHTML = `<i data-lucide="lock" class="w-4 h-4"></i>この内容で当番を確定・ロックする`; }
+      else { badge.className = "text-xs font-bold px-2 py-0.5 rounded-md bg-purple-100 text-purple-800"; badge.innerText = "3.確定・ロック済"; lockHint.classList.remove('hidden'); lockBtn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i>メンバーの変更を保存する`; }
 
       const chipContainer = document.getElementById('admin-date-chips'); chipContainer.innerHTML = '';
       currentDates.forEach(date => {
         const w = getWeekday(date); const isHoli = (date === "2026-08-11" || date === "2026-08-12");
         const chipColor = (w === '日' || isHoli) ? 'bg-red-50 text-red-700 border-red-100' : (w === '土' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-slate-50 text-slate-700 border-slate-100');
         const chip = document.createElement('span');
-        chip.className = `inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-lg border shadow-sm ${chipColor}`;
-        chip.innerHTML = `${date.split('-')[1]}/${date.split('-')[2]}(${isHoli?'祝':w}) <button class="hover:text-red-500 font-normal ml-0.5" onclick="deleteDate('${date}')">×</button>`;
+        chip.className = `inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-xl border shadow-sm ${chipColor}`;
+        chip.innerHTML = `${date.split('-')[1]}/${date.split('-')[2]}(${isHoli?'祝':w}) <button class="hover:text-red-500 ml-0.5" onclick="deleteDate('${date}')">×</button>`;
         chipContainer.appendChild(chip);
       });
 
@@ -398,40 +428,42 @@
         const slots = currentAssignments[date];
 
         const block = document.createElement('div');
-        block.className = "p-3 bg-white rounded-xl border border-slate-200 shadow-sm space-y-2.5";
+        block.className = "p-4 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-3";
         const isMaxReached = slots.length >= MAX_SLOTS;
 
         block.innerHTML = `
-          <div class="flex items-center justify-between border-b pb-1.5">
-            <span class="text-xs font-bold text-slate-800">${date.split('-')[1]}/${date.split('-')[2]} <span class="${dayColor}">(${isHoli?'祝':w})</span></span>
-            <button onclick="addSlot('${date}')" ${isMaxReached ? 'disabled' : ''} class="text-[10px] font-bold flex items-center gap-0.5 px-2 py-0.5 rounded transition ${isMaxReached ? 'text-slate-300 bg-slate-50' : 'text-indigo-600 bg-indigo-50'}">
-              <i data-lucide="plus" class="w-3 h-3"></i>追加
+          <div class="flex items-center justify-between border-b pb-2">
+            <span class="text-sm font-bold text-slate-800">${date.split('-')[1]}/${date.split('-')[2]} <span class="${dayColor}">(${isHoli?'祝':w})</span></span>
+            <button onclick="addSlot('${date}')" ${isMaxReached ? 'disabled' : ''} class="text-xs font-bold flex items-center gap-0.5 px-2 py-1 rounded-lg transition ${isMaxReached ? 'text-slate-300 bg-slate-100' : 'text-indigo-600 bg-indigo-50'}">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>枠を追加
             </button>
           </div>
         `;
 
-        let slotsHtml = `<div class="space-y-1.5">`;
+        let slotsHtml = `<div class="space-y-2.5">`;
         slots.forEach((currentAssigned, index) => {
-          let optionsHtml = `<option value="">-- 枠 ${index + 1} --</option>`;
+          let optionsHtml = `<option value="">-- 担当者 ${index + 1} を選択 --</option>`;
+          
+          // 🆕 この「同日内の他のスロット」で既に選ばれているユーザーIDの配列を作る
           const alreadySelectedInThisDate = slots.filter((uid, i) => i !== index && uid !== "");
 
-          // 1. あなた (my_user)
+          // 1. あなた (my_user) の判定
           const myStatus = myAnswers[date] || 'ng';
           if (myStatus !== 'ng') {
             const isSelectedElsewhere = alreadySelectedInThisDate.includes('my_user');
             const disabledAttr = isSelectedElsewhere ? 'disabled' : '';
-            const suffix = isSelectedElsewhere ? ' [選択済]' : ` [${myStatus === 'ok'?'〇':'回答可'}]`;
-            optionsHtml += `<option value="my_user" ${currentAssigned === 'my_user' ? 'selected' : ''} ${disabledAttr}>🌟あなた (${getLiveDutyCount('my_user')}回)${suffix}</option>`;
+            const suffix = isSelectedElsewhere ? ' [※選択済]' : ` [${myStatus === 'ok'?'〇':'回答可'}]`;
+            optionsHtml += `<option value="my_user" ${currentAssigned === 'my_user' ? 'selected' : ''} ${disabledAttr}>🌟 あなた (通算: ${getLiveDutyCount('my_user')}回)${suffix}</option>`;
           }
 
-          // 2. 他のメンバー
+          // 2. 他のメンバーの判定
           usersMaster.forEach(u => {
             const status = mockResponses[u.id]?.[date] || 'ng';
             if (status === 'ok' || status === 'maybe') {
               const isSelectedElsewhere = alreadySelectedInThisDate.includes(u.id);
               const disabledAttr = isSelectedElsewhere ? 'disabled' : '';
-              const suffix = isSelectedElsewhere ? ' [選択済]' : ` [${status === 'ok' ? '〇' : '△'}]`;
-              optionsHtml += `<option value="${u.id}" ${currentAssigned === u.id ? 'selected' : ''} ${disabledAttr}>${u.name} (${getLiveDutyCount(u.id)}回)${suffix}</option>`;
+              const suffix = isSelectedElsewhere ? ' [※選択済]' : ` [${status === 'ok' ? '〇' : '△'}]`;
+              optionsHtml += `<option value="${u.id}" ${currentAssigned === u.id ? 'selected' : ''} ${disabledAttr}>${u.name} (通算: ${getLiveDutyCount(u.id)}回)${suffix}</option>`;
             }
           });
 
@@ -439,16 +471,16 @@
           usersMaster.forEach(u => {
             const status = mockResponses[u.id]?.[date] || 'ng';
             if (status === 'ng') {
-              optionsHtml += `<option value="${u.id}" disabled class="text-slate-300">${u.name} (${getLiveDutyCount(u.id)}回) [×不可]</option>`;
+              optionsHtml += `<option value="${u.id}" disabled class="text-slate-300">${u.name} (通算: ${getLiveDutyCount(u.id)}回) [×不可]</option>`;
             }
           });
 
           slotsHtml += `
-            <div class="flex items-center gap-1.5">
-              <select class="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-700 focus:outline-none focus:bg-white focus:border-indigo-500" onchange="assignUser('${date}', ${index}, this.value)">
+            <div class="flex items-center gap-2">
+              <select class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-700 shadow-sm focus:outline-none focus:bg-white focus:border-indigo-500" onchange="assignUser('${date}', ${index}, this.value)">
                 ${optionsHtml}
               </select>
-              ${slots.length > 1 ? `<button onclick="removeSlot('${date}', ${index})" class="text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>` : ''}
+              ${slots.length > 1 ? `<button onclick="removeSlot('${date}', ${index})" class="text-slate-400 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
             </div>
           `;
         });
@@ -458,7 +490,7 @@
       });
     }
 
-    // 👑 履歴・実績画面
+    // 👑 履歴タブレンダリング
     function renderHistoryView() {
       const rankingContainer = document.getElementById('history-ranking-list'); rankingContainer.innerHTML = '';
       const allMembers = [
@@ -474,23 +506,23 @@
 
       allMembers.forEach((member, i) => {
         const row = document.createElement('div');
-        row.className = `flex justify-between items-center px-3 py-2 text-xs ${member.isMe ? 'bg-amber-50/50 font-bold' : ''}`;
+        row.className = `flex justify-between items-center px-4 py-2.5 text-xs ${member.isMe ? 'bg-amber-50/50' : ''}`;
         const diff = member.dutyCount - averageCount;
         const diffText = diff >= 0 ? `+${diff.toFixed(1)}` : `${diff.toFixed(1)}`;
 
         let statusText = `標準 (${diffText})`;
         let badgeClass = 'bg-slate-100 text-slate-500 border border-slate-200';
-        if (diff >= 1.0) { statusText = `多め (${diffText})`; badgeClass = 'bg-red-50 text-red-600 border border-red-200'; }
-        else if (diff <= -1.0) { statusText = `少なめ (${diffText})`; badgeClass = 'bg-emerald-50 text-emerald-600 border border-emerald-200'; }
+        if (diff >= 1.0) { statusText = `多め (${diffText})`; badgeClass = 'bg-red-50 text-red-600 border border-red-200 font-bold'; }
+        else if (diff <= -1.0) { statusText = `少なめ (${diffText})`; badgeClass = 'bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold'; }
 
         row.innerHTML = `
-          <div class="flex items-center gap-1">
-            <span class="text-slate-400 font-mono w-3.5">${i + 1}</span>
-            <span>${member.isMe ? `🌟あなた` : member.name}</span>
-          </div>
           <div class="flex items-center gap-1.5">
-            <span class="font-bold text-slate-700">${member.dutyCount}回</span>
-            <span class="text-[9px] px-1.5 py-0.5 rounded ${badgeClass}">${statusText}</span>
+            <span class="text-slate-400 font-mono w-4">${i + 1}</span>
+            <span>${i === 0 ? '🟢 ' : ''}${member.isMe ? `🌟 <strong>あなた</strong>` : member.name}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-700">${member.dutyCount} 回</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-md ${badgeClass}">${statusText}</span>
           </div>
         `;
         rankingContainer.appendChild(row);
@@ -504,13 +536,13 @@
     function addManualDate() {
       const input = document.getElementById('manual-date-input');
       if (!input.value) return alert("日付を選択してください");
-      if (currentDates.includes(input.value)) return alert("追加済です");
+      if (currentDates.includes(input.value)) return alert("その日付は既に追加されています");
       currentDates.push(input.value); currentDates.sort(); input.value = ''; updateUI();
     }
     function publishSchedules() { alert("募集を開始しました！"); setSystemStatus('open'); switchSubTab('assign'); }
     function lockAssignments() {
-      if (currentStatus === 'closed') alert("変更内容を保存しました！");
-      else { alert("お当番を確定しました！"); setSystemStatus('closed'); }
+      if (currentStatus === 'closed') alert("お当番メンバーの変更内容を保存しました！");
+      else { alert("お当番を確定・ロックしました！"); setSystemStatus('closed'); }
       switchMainTab('parent');
     }
   </script>
