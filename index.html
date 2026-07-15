@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>お当番機能 UIシミュレーター Ver.5</title>
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; }
+    .toggle-btn { transition: all 0.2s ease; }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-24">
+
+  <!-- ⚙️ デバッグ用：ステータス強制切り替えパネル -->
+  <div class="bg-slate-800 text-white p-3 text-xs shadow-inner">
+    <div class="max-w-md mx-auto flex flex-wrap items-center justify-between gap-2">
+      <span class="font-bold text-slate-300">⚙️ シミュレータ状態切り替え:</span>
+      <div class="flex bg-slate-700 rounded-lg p-0.5 border border-slate-600">
+        <button onclick="setSystemStatus('draft')" id="btn-status-draft" class="px-2.5 py-1 rounded font-bold bg-slate-900 text-amber-400">1.準備中</button>
+        <button onclick="setSystemStatus('open')" id="btn-status-open" class="px-2.5 py-1 rounded font-bold text-slate-400">2.募集中</button>
+        <button onclick="setSystemStatus('closed')" id="btn-status-closed" class="px-2.5 py-1 rounded font-bold text-slate-400">3.確定ロック</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📱 メイン画面切り替えタブ -->
+  <div class="bg-white border-b sticky top-0 z-40 shadow-sm">
+    <div class="max-w-md mx-auto flex justify-around">
+      <button id="tab-parent" class="flex-1 py-4 text-center font-bold text-blue-600 border-b-2 border-blue-600 focus:outline-none" onclick="switchMainTab('parent')">
+        <i data-lucide="user" class="inline-block w-5 h-5 mr-1 align-middle"></i>保護者画面
+      </button>
+      <button id="tab-admin" class="flex-1 py-4 text-center font-bold text-gray-500 border-b-2 border-transparent focus:outline-none" onclick="switchMainTab('admin')">
+        <i data-lucide="shield-check" class="inline-block w-5 h-5 mr-1 align-middle"></i>役員設定画面
+      </button>
+    </div>
+  </div>
+
+  <div class="max-w-md mx-auto px-4 mt-4">
+
+    <!-- =================================================== -->
+    <!-- 📱 保護者用画面 (DutyParentResponse) -->
+    <!-- =================================================== -->
+    <div id="view-parent" class="space-y-4">
+      
+      <!-- 確定時の担当日ハイライト -->
+      <div id="parent-announcement" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-2xl shadow-md hidden">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-white/20 rounded-xl"><i data-lucide="award" class="w-6 h-6"></i></div>
+          <div>
+            <p class="text-xs text-purple-200 font-medium">あなたのお当番担当日</p>
+            <p class="text-lg font-bold" id="assigned-date-text">未確定</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- メインカード -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="calendar-range" class="text-blue-600"></i>
+            <span>2026年8月 お当番希望回答</span>
+          </h2>
+          <span id="parent-badge" class="text-xs font-bold px-2.5 py-1 rounded-full">状態</span>
+        </div>
+        
+        <!-- 募集開始前のアナウンス表示エリア -->
+        <div id="parent-empty-state" class="py-8 text-center space-y-3 hidden">
+          <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto">
+            <i data-lucide="clock" class="w-6 h-6"></i>
+          </div>
+          <p class="text-sm font-bold text-slate-700">現在、来月のお当番は募集していません</p>
+          <p class="text-xs text-slate-400">役員さんからの募集案内メッセージをお待ちください。</p>
+        </div>
+
+        <!-- 回答フォームエリア -->
+        <div id="parent-form-area" class="space-y-4">
+          <p id="parent-lock-msg" class="text-xs text-red-500 font-bold hidden">※お当番が確定したため、回答はロックされています。変更が必要な場合は役員さんにご連絡ください。</p>
+          <p id="parent-guide-msg" class="text-xs text-slate-500">※土日祝および調整が必要な日程です。ご都合を入力してください。</p>
+
+          <!-- 日付リスト -->
+          <div id="parent-date-list" class="space-y-3"></div>
+
+          <button id="parent-save-btn" class="w-full mt-6 bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition" onclick="saveParentResponses()">
+            回答を保存する
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- =================================================== -->
+    <!-- 👑 役員用画面 (DutyAdminManage) -->
+    <!-- =================================================== -->
+    <div id="view-admin" class="space-y-4 hidden">
+      
+      <div class="flex items-center justify-between bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+        <span class="text-xs font-bold text-indigo-900 flex items-center gap-1">
+          <i data-lucide="info" class="w-4 h-4"></i> 対象月: 2026年8月
+        </span>
+        <span id="admin-status-badge" class="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">準備中</span>
+      </div>
+
+      <!-- 役員画面内の小タブ切り替え -->
+      <div class="flex bg-slate-200 rounded-xl p-1 shadow-inner">
+        <button id="subtab-dates" class="flex-1 py-2 text-center text-sm font-bold bg-white text-slate-800 rounded-lg shadow-sm" onclick="switchSubTab('dates')">
+          ① 日程の管理
+        </button>
+        <button id="subtab-assign" class="flex-1 py-2 text-center text-sm font-bold text-slate-600 rounded-lg" onclick="switchSubTab('assign')">
+          ② 当番の割り振り
+        </button>
+      </div>
+
+      <!-- 👑 役員タブ1: 日程の管理 -->
+      <div id="admin-panel-dates" class="space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
+          <div>
+            <h3 class="text-sm font-bold text-slate-800 mb-1">募集日程の設定</h3>
+            <p class="text-xs text-slate-400">平日の個別追加や不要な日の削除が可能です。</p>
+          </div>
+
+          <!-- 🆕 土日祝の自動一括追加ボタン -->
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col gap-2">
+            <span class="text-xs font-bold text-slate-600 flex items-center gap-1">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>日程の一括生成ツール
+            </span>
+            <button class="w-full bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 text-indigo-700 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-sm active:scale-[0.99]" onclick="autoAddWeekendsAndHolidays()">
+              <i data-lucide="calendar-days" class="w-4 h-4"></i>8月の「土日祝」をすべて自動追加する
+            </button>
+          </div>
+
+          <!-- チップの並び -->
+          <div id="admin-date-chips" class="flex flex-wrap gap-2 py-2"></div>
+
+          <!-- 手動追加 -->
+          <div class="flex gap-2 border-t pt-3">
+            <input type="date" id="manual-date-input" class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+            <button class="bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1 hover:bg-slate-900 transition" onclick="addManualDate()">
+              <i data-lucide="plus" class="w-4 h-4"></i>追加
+            </button>
+          </div>
+
+          <button id="admin-publish-btn" class="w-full mt-2 bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-indigo-700 transition flex items-center justify-center gap-1" onclick="publishSchedules()">
+            <i data-lucide="megaphone" class="w-4 h-4"></i>日程を確定して募集開始
+          </button>
+        </div>
+      </div>
+
+      <!-- 👑 役員タブ2: 当番の割り振り -->
+      <div id="admin-panel-assign" class="space-y-4 hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
+          <div>
+            <h3 class="text-sm font-bold text-slate-800 mb-1">当番の割り当て調整</h3>
+            <p class="text-xs text-slate-400">各日程に必要な人数分だけ「枠を追加（最大4枠）」して割り振ってください。</p>
+            <p id="admin-lock-hint" class="text-xs text-purple-600 font-bold mt-1 hidden">✓ 現在お当番は確定・ロック中ですが、役員はいつでもメンバーを調整して「再保存」が可能です。</p>
+          </div>
+
+          <!-- 割り振りリスト -->
+          <div id="admin-assign-list" class="space-y-4"></div>
+
+          <!-- 状況に合わせてボタンのテキストと色を動的に変えます -->
+          <button id="admin-lock-btn" class="w-full mt-4 bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-emerald-700 transition flex items-center justify-center gap-1" onclick="lockAssignments()">
+            <i data-lucide="lock" class="w-4 h-4"></i>この内容で当番を確定・ロックする
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- =================================================== -->
+  <!-- JavaScript ロジック -->
+  <!-- =================================================== -->
+  <script>
+    let currentStatus = 'draft';
+    // 初期状態は空、または初期サンプルのみ配置
+    let currentDates = ["2026-08-01", "2026-08-02"];
+    
+    const MAX_SLOTS = 4;
+
+    const usersMaster = [
+      { id: "user_yamada", name: "山田 (紗菜・母)", dutyCount: 2 },
+      { id: "user_sato", name: "佐藤 (大翔・母)", dutyCount: 5 },
+      { id: "user_tanaka", name: "田中 (蓮・母)", dutyCount: 1 },
+      { id: "user_suzuki", name: "鈴木 (葵・母)", dutyCount: 3 },
+      { id: "user_watanabe", name: "渡辺 (陽菜・母)", dutyCount: 0 }
+    ];
+
+    let mockResponses = {
+      "user_yamada": { "2026-08-01": "ok", "2026-08-02": "maybe", "2026-08-08": "ng" },
+      "user_sato": { "2026-08-01": "maybe", "2026-08-02": "ng", "2026-08-08": "ok" },
+      "user_tanaka": { "2026-08-01": "ok", "2026-08-02": "ok", "2026-08-08": "maybe" },
+      "user_suzuki": { "2026-08-01": "ng", "2026-08-02": "ok", "2026-08-08": "ng" },
+      "user_watanabe": { "2026-08-01": "ok", "2026-08-02": "maybe", "2026-08-08": "ok" }
+    };
+
+    let myAnswers = {
+      "2026-08-01": "ok",
+      "2026-08-02": "maybe"
+    };
+
+    let currentAssignments = {
+      "2026-08-01": ["my_user", ""], 
+      "2026-08-02": [""]      
+    };
+
+    function getWeekday(dateStr) {
+      const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+      return weekdays[new Date(dateStr).getDay()];
+    }
+
+    // 🆕 土日祝の自動判定・一括追加ロジック (2026年8月対象)
+    function autoAddWeekendsAndHolidays() {
+      const year = 2026;
+      const month = 8; // 8月 (1-indexed)
+      
+      // 2026年8月の祝日データ: 8/11 (山の日), 8/12 (山の日の振替休日)
+      const holidays202608 = ["2026-08-11", "2026-08-12"];
+      
+      let addedCount = 0;
+      
+      // 8月1日から31日までループして判定
+      for (let day = 1; day <= 31; day++) {
+        const dateObj = new Date(year, month - 1, day);
+        const dayStr = String(day).padStart(2, '0');
+        const dateStr = `${year}-08-${dayStr}`;
+        
+        const dayOfWeek = dateObj.getDay(); // 0:日, 6:土
+        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+        const isHoliday = holidays202608.includes(dateStr);
+        
+        if (isWeekend || isHoliday) {
+          if (!currentDates.includes(dateStr)) {
+            currentDates.push(dateStr);
+            addedCount++;
+          }
+        }
+      }
+      
+      currentDates.sort(); // 日付順に並び替え
+      updateUI();
+      alert(`2026年8月の土日祝（山の日・振替休日を含む）を自動追加しました！\n(新規追加: ${addedCount}件)`);
+    }
+
+    window.onload = function() {
+      updateUI();
+    };
+
+    function setSystemStatus(status) {
+      currentStatus = status;
+      ['draft', 'open', 'closed'].forEach(s => {
+        const btn = document.getElementById(`btn-status-${s}`);
+        btn.className = s === status ? "px-2.5 py-1 rounded font-bold bg-slate-900 text-amber-400" : "px-2.5 py-1 rounded font-bold text-slate-400 hover:text-slate-200";
+      });
+      updateUI();
+    }
+
+    function switchMainTab(role) {
+      document.getElementById('view-parent').classList.toggle('hidden', role !== 'parent');
+      document.getElementById('view-admin').classList.toggle('hidden', role !== 'admin');
+      document.getElementById('tab-parent').className = role === 'parent' ? "flex-1 py-4 text-center font-bold text-blue-600 border-b-2 border-blue-600 focus:outline-none" : "flex-1 py-4 text-center font-bold text-gray-500 border-b-2 border-transparent focus:outline-none";
+      document.getElementById('tab-admin').className = role === 'admin' ? "flex-1 py-4 text-center font-bold text-indigo-600 border-b-2 border-indigo-600 focus:outline-none" : "flex-1 py-4 text-center font-bold text-gray-500 border-b-2 border-transparent focus:outline-none";
+      if (role === 'admin') mockResponses["my_user"] = myAnswers;
+      updateUI();
+    }
+
+    function switchSubTab(sub) {
+      document.getElementById('admin-panel-dates').classList.toggle('hidden', sub !== 'dates');
+      document.getElementById('admin-panel-assign').classList.toggle('hidden', sub !== 'assign');
+      document.getElementById('subtab-dates').className = sub === 'dates' ? "flex-1 py-2 text-center text-sm font-bold bg-white text-slate-800 rounded-lg shadow-sm" : "flex-1 py-2 text-center text-sm font-bold text-slate-600 rounded-lg";
+      document.getElementById('subtab-assign').className = sub === 'assign' ? "flex-1 py-2 text-center text-sm font-bold bg-white text-slate-800 rounded-lg shadow-sm" : "flex-1 py-2 text-center text-sm font-bold text-slate-600 rounded-lg";
+    }
+
+    function updateUI() {
+      renderParentView();
+      renderAdminView();
+      lucide.createIcons();
+    }
+
+    // ===================================================
+    // 📱 保護者画面
+    // ===================================================
+    function renderParentView() {
+      const badge = document.getElementById('parent-badge');
+      const emptyState = document.getElementById('parent-empty-state');
+      const formArea = document.getElementById('parent-form-area');
+      const lockMsg = document.getElementById('parent-lock-msg');
+      const guideMsg = document.getElementById('parent-guide-msg');
+      const saveBtn = document.getElementById('parent-save-btn');
+      
+      if (currentStatus === 'draft') {
+        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600"; badge.innerText = "準備中";
+        emptyState.classList.remove('hidden'); formArea.classList.add('hidden');
+      } else if (currentStatus === 'open') {
+        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-green-100 text-green-700"; badge.innerText = "回答受付中";
+        emptyState.classList.add('hidden'); formArea.classList.remove('hidden'); lockMsg.classList.add('hidden'); guideMsg.classList.remove('hidden'); saveBtn.classList.remove('hidden');
+      } else {
+        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700"; badge.innerText = "確定・締切";
+        emptyState.classList.add('hidden'); formArea.classList.remove('hidden'); lockMsg.classList.remove('hidden'); guideMsg.classList.add('hidden'); saveBtn.classList.add('hidden');
+      }
+
+      const container = document.getElementById('parent-date-list');
+      container.innerHTML = '';
+
+      currentDates.forEach(date => {
+        const day = date.split('-')[2]; const w = getWeekday(date); const currentSelection = myAnswers[date] || 'ng';
+        
+        // 2026年8月の祝日判定
+        const isHoli = (date === "2026-08-11" || date === "2026-08-12");
+        const dayColor = (w === '日' || isHoli) ? 'text-red-500' : (w === '土' ? 'text-blue-500' : 'text-slate-700');
+        const displayW = isHoli ? "祝" : w;
+
+        const isDisabled = currentStatus === 'closed' ? 'disabled' : '';
+        const pointerClass = currentStatus === 'closed' ? 'cursor-not-allowed' : 'cursor-pointer';
+
+        const item = document.createElement('div');
+        item.className = "flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 shadow-sm";
+        item.innerHTML = `
+          <div>
+            <span class="text-sm font-bold text-slate-800">${date.split('-')[1]}/${day}</span>
+            <span class="text-xs font-bold ${dayColor} ml-1">(${displayW})</span>
+          </div>
+          <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-inner">
+            <button onclick="setAnswer('${date}', 'ok')" ${isDisabled} class="px-3 py-1.5 text-xs font-bold rounded-md toggle-btn ${pointerClass} ${currentSelection === 'ok' ? 'bg-green-100 text-green-700' : 'text-gray-400 hover:text-gray-600'}">〇</button>
+            <button onclick="setAnswer('${date}', 'maybe')" ${isDisabled} class="px-3 py-1.5 text-xs font-bold rounded-md toggle-btn ${pointerClass} ${currentSelection === 'maybe' ? 'bg-amber-100 text-amber-700' : 'text-gray-400 hover:text-gray-600'}">△</button>
+            <button onclick="setAnswer('${date}', 'ng')" ${isDisabled} class="px-3 py-1.5 text-xs font-bold rounded-md toggle-btn ${pointerClass} ${currentSelection === 'ng' ? 'bg-red-100 text-red-700' : 'text-gray-400 hover:text-gray-600'}">×</button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+
+      let myAssignedDates = [];
+      Object.keys(currentAssignments).forEach(d => {
+        if (currentAssignments[d].includes('my_user')) {
+          myAssignedDates.push(d);
+        }
+      });
+
+      const announcement = document.getElementById('parent-announcement');
+      if (currentStatus === 'closed') {
+        announcement.classList.remove('hidden');
+        if (myAssignedDates.length > 0) {
+          document.getElementById('assigned-date-text').innerText = myAssignedDates.map(d => `${d.split('-')[1]}/${d.split('-')[2]}(${getWeekday(d)})`).join(', ') + " に決定しました！";
+        } else {
+          document.getElementById('assigned-date-text').innerText = "今月の担当日はありません（ご協力ありがとうございました！）";
+        }
+      } else {
+        announcement.classList.add('hidden');
+      }
+    }
+
+    function setAnswer(date, value) {
+      if (currentStatus === 'closed') return;
+      myAnswers[date] = value; updateUI();
+    }
+    function saveParentResponses() { alert("回答を保存しました！"); }
+
+    // ===================================================
+    // 👑 役員画面
+    // ===================================================
+    function renderAdminView() {
+      const badge = document.getElementById('admin-status-badge');
+      const lockHint = document.getElementById('admin-lock-hint');
+      const lockBtn = document.getElementById('admin-lock-btn');
+
+      if (currentStatus === 'draft') { 
+        badge.className = "text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800"; badge.innerText = "1.日程作成中"; 
+        lockHint.classList.add('hidden');
+        lockBtn.className = "w-full mt-4 bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-emerald-700 transition flex items-center justify-center gap-1";
+        lockBtn.innerHTML = `<i data-lucide="lock" class="w-4 h-4"></i>この内容で当番を確定・ロックする`;
+      }
+      else if (currentStatus === 'open') { 
+        badge.className = "text-xs font-bold px-2 py-0.5 rounded-md bg-green-100 text-green-800"; badge.innerText = "2.保護者回答受付中"; 
+        lockHint.classList.add('hidden');
+        lockBtn.className = "w-full mt-4 bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-emerald-700 transition flex items-center justify-center gap-1";
+        lockBtn.innerHTML = `<i data-lucide="lock" class="w-4 h-4"></i>この内容で当番を確定・ロックする`;
+      }
+      else { 
+        badge.className = "text-xs font-bold px-2 py-0.5 rounded-md bg-purple-100 text-purple-800"; badge.innerText = "3.確定・ロック済"; 
+        lockHint.classList.remove('hidden');
+        lockBtn.className = "w-full mt-4 bg-purple-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-purple-700 transition flex items-center justify-center gap-1";
+        lockBtn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i>メンバーの変更を保存する`;
+      }
+
+      const chipContainer = document.getElementById('admin-date-chips');
+      chipContainer.innerHTML = '';
+      currentDates.forEach(date => {
+        const w = getWeekday(date);
+        const isHoli = (date === "2026-08-11" || date === "2026-08-12");
+        const chipColor = (w === '日' || isHoli) ? 'bg-red-50 text-red-700 border-red-100' : (w === '土' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-slate-50 text-slate-700 border-slate-100');
+        const displayW = isHoli ? "祝" : w;
+
+        const chip = document.createElement('span');
+        chip.className = `inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-xl border shadow-sm ${chipColor}`;
+        chip.innerHTML = `${date.split('-')[1]}/${date.split('-')[2]}(${displayW}) <button class="hover:text-red-500 font-normal ml-0.5" onclick="deleteDate('${date}')">×</button>`;
+        chipContainer.appendChild(chip);
+      });
+
+      const assignContainer = document.getElementById('admin-assign-list');
+      assignContainer.innerHTML = '';
+
+      currentDates.forEach(date => {
+        const w = getWeekday(date);
+        const isHoli = (date === "2026-08-11" || date === "2026-08-12");
+        const dayColor = (w === '日' || isHoli) ? 'text-red-500' : (w === '土' ? 'text-blue-500' : 'text-slate-700');
+        const displayW = isHoli ? "祝" : w;
+        
+        const isSelectDisabled = ''; 
+
+        if (!currentAssignments[date]) {
+          currentAssignments[date] = [""];
+        }
+        const slots = currentAssignments[date];
+
+        const block = document.createElement('div');
+        block.className = "p-4 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-3";
+        
+        const isMaxReached = slots.length >= MAX_SLOTS;
+        const addBtnClass = isMaxReached ? 'text-slate-300 bg-slate-100 cursor-not-allowed' : 'text-indigo-600 hover:text-indigo-800 bg-indigo-50';
+
+        let headerHtml = `
+          <div class="flex items-center justify-between border-b pb-2">
+            <span class="text-sm font-bold text-slate-800">${date.split('-')[1]}/${date.split('-')[2]} <span class="${dayColor}">(${displayW})</span></span>
+            <button onclick="addSlot('${date}')" ${isMaxReached ? 'disabled' : ''} class="text-xs font-bold flex items-center gap-0.5 px-2 py-1 rounded-lg transition ${addBtnClass}">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>枠を追加 ${isMaxReached ? '(上限)' : ''}
+            </button>
+          </div>
+        `;
+
+        let slotsHtml = `<div class="space-y-2.5">`;
+        slots.forEach((currentAssigned, index) => {
+          
+          let optionsHtml = `<option value="">-- 担当者 ${index + 1} を選択 --</option>`;
+          const myStatus = myAnswers[date] || 'ng';
+          if (myStatus !== 'ng') {
+            optionsHtml += `<option value="my_user" ${currentAssigned === 'my_user' ? 'selected' : ''}>🌟 あなた (通算: 0回) [${myStatus === 'ok'?'〇':'△'}]</option>`;
+          }
+
+          usersMaster.forEach(u => {
+            const status = mockResponses[u.id]?.[date] || 'ng';
+            if (status === 'ok' || status === 'maybe') {
+              const icon = status === 'ok' ? '〇' : '△';
+              optionsHtml += `<option value="${u.id}" ${currentAssigned === u.id ? 'selected' : ''}>${u.name} (通算: ${u.dutyCount}回) [${icon}]</option>`;
+            }
+          });
+
+          optionsHtml += `<option disabled>──────────</option>`;
+          usersMaster.forEach(u => {
+            const status = mockResponses[u.id]?.[date] || 'ng';
+            if (status === 'ng') {
+              optionsHtml += `<option value="${u.id}" disabled class="text-slate-300">${u.name} (通算: ${u.dutyCount}回) [×不可]</option>`;
+            }
+          });
+
+          const deleteSlotBtn = (slots.length > 1) ? `
+            <button onclick="removeSlot('${date}', ${index})" class="text-slate-400 hover:text-red-500 p-1 rounded-lg hover:bg-slate-50 transition">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          ` : '';
+
+          slotsHtml += `
+            <div class="flex items-center gap-2">
+              <select ${isSelectDisabled} class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-700 shadow-sm focus:outline-none focus:bg-white focus:border-indigo-500" onchange="assignUser('${date}', ${index}, this.value)">
+                ${optionsHtml}
+              </select>
+              ${deleteSlotBtn}
+            </div>
+          `;
+        });
+        slotsHtml += `</div>`;
+
+        block.innerHTML = headerHtml + slotsHtml;
+        assignContainer.appendChild(block);
+      });
+    }
+
+    function addSlot(date) {
+      if (currentAssignments[date].length >= MAX_SLOTS) return;
+      currentAssignments[date].push("");
+      updateUI();
+    }
+
+    function removeSlot(date, index) {
+      currentAssignments[date].splice(index, 1);
+      updateUI();
+    }
+
+    function assignUser(date, index, userId) {
+      currentAssignments[date][index] = userId;
+    }
+
+    function deleteDate(date) {
+      currentDates = currentDates.filter(d => d !== date);
+      delete currentAssignments[date];
+      updateUI();
+    }
+
+    function addManualDate() {
+      const input = document.getElementById('manual-date-input');
+      if (!input.value) return alert("日付を選択してください");
+      if (currentDates.includes(input.value)) return alert("その日付は既に追加されています");
+      currentDates.push(input.value);
+      currentDates.sort();
+      input.value = '';
+      updateUI();
+    }
+
+    function publishSchedules() {
+      alert("募集を開始しました！");
+      setSystemStatus('open'); switchSubTab('assign');
+    }
+
+    function lockAssignments() {
+      if (currentStatus === 'closed') {
+        alert("お当番メンバーの変更内容を保存しました！\n保護者画面にも変更が自動反映されます。");
+      } else {
+        alert("お当番を確定・ロックしました！");
+        setSystemStatus('closed');
+      }
+      switchMainTab('parent');
+    }
+  </script>
+</body>
+</html>
