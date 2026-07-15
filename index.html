@@ -12,7 +12,7 @@
     .toggle-btn { transition: all 0.2s ease; }
   </style>
 </head>
-<body class="bg-slate-50 min-h-screen pb-24">
+<body class="bg-slate-100 min-h-screen pb-24 text-slate-800">
 
   <!-- ⚙️ デバッグ用：ステータス強制切り替えパネル -->
   <div class="bg-slate-800 text-white p-3 text-xs shadow-inner">
@@ -27,13 +27,13 @@
   </div>
 
   <!-- 📱 メイン画面切り替えタブ -->
-  <div class="bg-white border-b sticky top-0 z-40 shadow-sm">
+  <div class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-md mx-auto flex justify-around">
-      <button id="tab-parent" class="flex-1 py-4 text-center font-bold text-blue-600 border-b-2 border-blue-600 focus:outline-none" onclick="switchMainTab('parent')">
-        <i data-lucide="user" class="inline-block w-5 h-5 mr-1 align-middle"></i>保護者画面
+      <button id="tab-parent" class="flex-1 py-4 text-center text-sm font-bold text-[#2D2B75] border-b-2 border-[#2D2B75] focus:outline-none transition" onclick="switchMainTab('parent')">
+        <i data-lucide="user" class="inline-block w-4 h-4 mr-1.5 align-middle"></i>保護者画面
       </button>
-      <button id="tab-admin" class="flex-1 py-4 text-center font-bold text-gray-500 border-b-2 border-transparent focus:outline-none" onclick="switchMainTab('admin')">
-        <i data-lucide="shield-check" class="inline-block w-5 h-5 mr-1 align-middle"></i>役員設定画面
+      <button id="tab-admin" class="flex-1 py-4 text-center text-sm font-bold text-slate-400 border-b-2 border-transparent focus:outline-none transition" onclick="switchMainTab('admin')">
+        <i data-lucide="shield-check" class="inline-block w-4 h-4 mr-1.5 align-middle"></i>役員設定画面
       </button>
     </div>
   </div>
@@ -41,49 +41,48 @@
   <div class="max-w-md mx-auto px-4 mt-4">
 
     <!-- =================================================== -->
-    <!-- 📱 保護者用画面 (DutyParentResponse) -->
+    <!-- 📱 保護者用画面 -->
     <!-- =================================================== -->
     <div id="view-parent" class="space-y-4">
       
       <!-- 確定時の担当日ハイライト -->
-      <div id="parent-announcement" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-2xl shadow-md hidden">
+      <div id="parent-announcement" class="bg-gradient-to-r from-[#2D2B75] to-indigo-600 text-white p-4 rounded-2xl shadow-md hidden">
         <div class="flex items-center gap-3">
           <div class="p-2 bg-white/20 rounded-xl"><i data-lucide="award" class="w-6 h-6"></i></div>
           <div>
-            <p class="text-xs text-purple-200 font-medium">あなたのお当番担当日</p>
-            <p class="text-lg font-bold" id="assigned-date-text">未確定</p>
+            <p class="text-xs text-indigo-100 font-medium">あなたのお当番担当日</p>
+            <p class="text-base font-bold" id="assigned-date-text">未確定</p>
           </div>
         </div>
       </div>
 
       <!-- メインカード -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <i data-lucide="calendar-range" class="text-blue-600"></i>
+      <div class="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+            <i data-lucide="calendar-range" class="text-[#2D2B75] w-5 h-5"></i>
             <span>2026年8月 お当番希望回答</span>
           </h2>
           <span id="parent-badge" class="text-xs font-bold px-2.5 py-1 rounded-full">状態</span>
         </div>
         
-        <!-- 募集開始前のアナウンス表示エリア -->
         <div id="parent-empty-state" class="py-8 text-center space-y-3 hidden">
           <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto">
             <i data-lucide="clock" class="w-6 h-6"></i>
           </div>
-          <p class="text-sm font-bold text-slate-700">現在、来月のお当番は募集していません</p>
-          <p class="text-xs text-slate-400">役員さんからの募集案内メッセージをお待ちください。</p>
+          <p class="text-sm font-bold text-slate-700">現在、お当番の募集はありません</p>
+          <p class="text-xs text-slate-400">募集案内メッセージをお待ちください。</p>
         </div>
 
         <!-- 回答フォームエリア -->
         <div id="parent-form-area" class="space-y-4">
           <p id="parent-lock-msg" class="text-xs text-red-500 font-bold hidden">※お当番が確定したため、回答はロックされています。変更が必要な場合は役員さんにご連絡ください。</p>
-          <p id="parent-guide-msg" class="text-xs text-slate-500">※土日祝および調整が必要な日程です。ご都合を入力してください。</p>
+          <p id="parent-guide-msg" class="text-xs text-slate-400 leading-relaxed">※土日祝および調整が必要な日程です。ご都合を入力してください。</p>
 
           <!-- 日付リスト -->
           <div id="parent-date-list" class="space-y-3"></div>
 
-          <button id="parent-save-btn" class="w-full mt-6 bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition" onclick="saveParentResponses()">
+          <button id="parent-save-btn" class="w-full mt-6 bg-[#2D2B75] hover:bg-[#1E1D55] text-white font-bold py-3.5 rounded-xl shadow-md transition" onclick="saveParentResponses()">
             回答を保存する
           </button>
         </div>
@@ -92,12 +91,12 @@
 
 
     <!-- =================================================== -->
-    <!-- 👑 役員用画面 (DutyAdminManage) -->
+    <!-- 👑 役員用画面 -->
     <!-- =================================================== -->
     <div id="view-admin" class="space-y-4 hidden">
       
-      <div class="flex items-center justify-between bg-indigo-50 p-3 rounded-xl border border-indigo-100">
-        <span class="text-xs font-bold text-indigo-900 flex items-center gap-1">
+      <div class="flex items-center justify-between bg-indigo-50/50 p-3 rounded-xl border border-indigo-100">
+        <span class="text-xs font-bold text-[#2D2B75] flex items-center gap-1">
           <i data-lucide="info" class="w-4 h-4"></i> 対象月: 2026年8月
         </span>
         <span id="admin-status-badge" class="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">準備中</span>
@@ -105,117 +104,167 @@
 
       <!-- 役員画面内の小タブ切り替え -->
       <div class="flex bg-slate-200 rounded-xl p-1 shadow-inner gap-1">
-        <button id="subtab-dates" class="flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm" onclick="switchSubTab('dates')">
+        <button id="subtab-dates" class="flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm transition" onclick="switchSubTab('dates')">
           ① 日程管理
         </button>
-        <button id="subtab-assign" class="flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg" onclick="switchSubTab('assign')">
+        <button id="subtab-assign" class="flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg transition" onclick="switchSubTab('assign')">
           ② 割り振り
         </button>
-        <button id="subtab-history" class="flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg" onclick="switchSubTab('history')">
+        <button id="subtab-history" class="flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg transition" onclick="switchSubTab('history')">
           ③ 当番の履歴
         </button>
       </div>
 
       <!-- 👑 役員タブ1: 日程の管理 -->
       <div id="admin-panel-dates" class="space-y-4">
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
+        <div class="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm space-y-4">
           <div>
             <h3 class="text-sm font-bold text-slate-800 mb-1">募集日程の設定</h3>
-            <p class="text-xs text-slate-400">平日の個別追加や不要な日の削除が可能です。</p>
+            <p class="text-xs text-slate-400">日程の追加・削除と、試合か練習かの種別を設定できます。</p>
           </div>
 
-          <!-- 土日祝の自動一括追加ボタン -->
+          <!-- 土日祝の一括追加 -->
           <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col gap-2">
             <span class="text-xs font-bold text-slate-600 flex items-center gap-1">
-              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>日程の一括生成ツール
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>日程一括生成
             </span>
-            <button class="w-full bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 text-indigo-700 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-sm active:scale-[0.99]" onclick="autoAddWeekendsAndHolidays()">
-              <i data-lucide="calendar-days" class="w-4 h-4"></i>8月の「土日祝」をすべて自動追加する
+            <button class="w-full bg-indigo-50/80 hover:bg-indigo-100/80 border border-indigo-200 text-indigo-700 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-sm" onclick="autoAddWeekendsAndHolidays()">
+              <i data-lucide="calendar-days" class="w-4 h-4"></i>8月の「土日祝」を自動追加
             </button>
           </div>
 
-          <!-- チップの並び -->
-          <div id="admin-date-chips" class="flex flex-wrap gap-2 py-2"></div>
+          <!-- 日程管理：リアルタイム登録リスト -->
+          <div class="space-y-2">
+            <span class="text-xs font-bold text-slate-500 block">登録日程と種類の設定:</span>
+            <div id="admin-dates-config-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+          </div>
 
-          <!-- 手動追加 -->
-          <div class="flex gap-2 border-t pt-3">
-            <input type="date" id="manual-date-input" class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
-            <button class="bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1 hover:bg-slate-900 transition" onclick="addManualDate()">
+          <!-- 手動個別追加 -->
+          <div class="flex gap-2 border-t border-slate-100 pt-3">
+            <input type="date" id="manual-date-input" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#2D2B75] focus:bg-white transition">
+            <button class="bg-[#2D2B75] hover:bg-[#1E1D55] text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1 transition" onclick="addManualDate()">
               <i data-lucide="plus" class="w-4 h-4"></i>追加
             </button>
           </div>
 
-          <button id="admin-publish-btn" class="w-full mt-2 bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-indigo-700 transition flex items-center justify-center gap-1" onclick="publishSchedules()">
-            <i data-lucide="megaphone" class="w-4 h-4"></i>日程を確定して募集開始
+          <!-- 日程確定ボタン -->
+          <button id="admin-publish-btn" class="w-full mt-4 bg-[#2D2B75] hover:bg-[#1E1D55] text-white font-bold py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-1.5" onclick="publishSchedules()">
+            <i data-lucide="check-circle" class="w-5 h-5"></i>確定
           </button>
         </div>
       </div>
 
       <!-- 👑 役員タブ2: 当番の割り振り -->
       <div id="admin-panel-assign" class="space-y-4 hidden">
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
+        <div class="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm space-y-4">
           <div>
             <h3 class="text-sm font-bold text-slate-800 mb-1">当番の割り当て調整</h3>
-            <p class="text-xs text-slate-400">各日程に必要な人数分だけ「枠を追加（最大4枠）」して割り振ってください。</p>
-            <p id="admin-lock-hint" class="text-xs text-purple-600 font-bold mt-1 hidden">✓ 現在お当番は確定・ロック中ですが、役員はいつでもメンバーを調整して「再保存」が可能です。</p>
+            <p class="text-xs text-slate-400">複数必要な場合は枠を追加してください。</p>
           </div>
 
           <!-- 割り振りリスト -->
           <div id="admin-assign-list" class="space-y-4"></div>
 
           <!-- ボタン -->
-          <button id="admin-lock-btn" class="w-full mt-4 bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-emerald-700 transition flex items-center justify-center gap-1" onclick="lockAssignments()">
-            <i data-lucide="lock" class="w-4 h-4"></i>この内容で当番を確定・ロックする
+          <button id="admin-lock-btn" class="w-full mt-4 bg-[#2D2B75] hover:bg-[#1E1D55] text-white font-bold py-3 rounded-xl shadow-md transition flex items-center justify-center gap-1" onclick="lockAssignments()">
+            <i data-lucide="lock" class="w-4 h-4"></i>当番確定
           </button>
         </div>
       </div>
 
-      <!-- 👑 役員タブ3: 当番の履歴 -->
-      <div id="admin-panel-history" class="space-y-4 hidden">
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
-          <div>
-            <h3 class="text-sm font-bold text-slate-800 mb-1">お当番実績・履歴</h3>
-            <p class="text-xs text-slate-400">各メンバーの通算担当回数（割り振り中の分もリアルタイム加算）と平均値との差分です。</p>
+      <!-- 👑 役員タブ3: 当番の履歴（文字サイズ調整・絵文字変更対応） -->
+      <div id="admin-panel-history" class="space-y-6 hidden">
+        <div class="bg-white rounded-3xl border border-slate-100 p-2.5 space-y-5">
+          
+          <!-- ヘッダーエリア（文字サイズ微縮小） -->
+          <div class="px-1.5 pt-1.5">
+            <h2 class="text-sm font-bold text-slate-800 mb-1 flex items-center gap-2">
+              当番実績
+            </h2>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              通算担当回数および平均値との差分。
+            </p>
           </div>
 
-          <!-- リアルタイム平均表示板 -->
-          <div class="bg-indigo-900 text-white rounded-xl p-3 flex justify-between items-center shadow-sm">
-            <span class="text-xs font-bold text-indigo-200">現在の全員の平均当番回数:</span>
-            <span id="history-average-badge" class="text-sm font-black bg-indigo-800 px-2.5 py-1 rounded-lg">1.1 回</span>
+          <!-- 👑 紫背景の平均回数表示（全体サイズをすっきり微縮小） -->
+          <div class="bg-[#2D2B75] rounded-xl p-3 flex justify-between items-center shadow-sm">
+            <span class="text-xs font-bold text-white">平均当番回数:</span>
+            <span class="text-sm font-bold bg-white/10 px-2.5 py-1 rounded-lg text-white border border-white/10 flex items-baseline gap-1">
+              <span id="average-count-display" class="font-black text-base">0.0</span> <span class="text-xs font-bold">回</span>
+            </span>
           </div>
 
-          <!-- 通算担当回数ランキング -->
-          <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
-            <div class="bg-slate-50 px-3 py-2 border-b border-slate-100 flex justify-between items-center">
-              <span class="text-xs font-bold text-slate-600">メンバー別累計回数と評価</span>
+          <!-- 練習・試合をタブで切り替えるメンバー別累計実績 -->
+          <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm bg-white">
+            <div class="flex border-b bg-slate-50 p-1 gap-1 border-slate-100">
+              <button id="history-subtab-practice" class="flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm transition" onclick="switchHistoryType('practice')">🏃 練習</button>
+              <button id="history-subtab-match" class="flex-1 py-2 text-center text-xs font-bold text-slate-500 rounded-lg transition" onclick="switchHistoryType('match')">⚽ 試合</button>
+            </div>
+
+            <!-- 少ない順ソートの見出し（少し小さめに） -->
+            <div class="bg-slate-50/50 px-4 py-2.5 border-b border-slate-100 flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-700">メンバー別累計回数</span>
               <span class="text-[10px] text-slate-400">※回数の少ない順</span>
             </div>
-            <div id="history-ranking-list" class="divide-y divide-slate-100 bg-white">
-              <!-- JSで動的に追加 -->
+            <div id="history-sorted-list" class="divide-y divide-slate-100">
+              <!-- JSで動的に構築（🌟アイコン、文字サイズxsで再現） -->
             </div>
           </div>
 
-          <!-- 過去の月別履歴ログ -->
-          <div class="space-y-3">
-            <h4 class="text-xs font-bold text-slate-600 flex items-center gap-1">
-              <i data-lucide="history" class="w-3.5 h-3.5 text-slate-400"></i>過去の担当日ログ
-            </h4>
+          <!-- 過去の月別履歴ログ＆月別グループ化切り替え -->
+          <div class="space-y-3 pt-2 px-1.5 pb-1.5">
+            <div class="flex justify-between items-center">
+              <h4 class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+                <i data-lucide="history" class="w-3.5 h-3.5 text-slate-400"></i>当番履歴
+              </h4>
+              <!-- 過去ログ月切り替えタブ -->
+              <div class="flex bg-slate-200 rounded-lg p-0.5 text-[9px] font-bold" id="past-months-tab-container">
+                <!-- 動的に月タブを生成 -->
+              </div>
+            </div>
             
-            <div class="space-y-2 max-h-[160px] overflow-y-auto pr-1">
-              <!-- 7月 -->
-              <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                <p class="text-xs font-bold text-slate-700 mb-1.5">2026年7月</p>
-                <div class="space-y-1 text-xs text-slate-600">
-                  <div class="flex justify-between border-b border-dashed border-slate-200 pb-0.5">
-                    <span>7/26(日)</span> <span class="font-semibold text-slate-800">堂鳳, 森本</span>
-                  </div>
-                  <div class="flex justify-between border-b border-dashed border-slate-200 pb-0.5">
-                    <span>7/19(日)</span> <span class="font-semibold text-slate-800">平松, 皆川</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span>7/12(日)</span> <span class="font-semibold text-slate-800">平松, あなた</span>
-                  </div>
+            <!-- 原則当番1名仕様のリストデザイン (文字サイズをxsに変更) -->
+            <div class="bg-slate-50 p-4 rounded-xl space-y-2.5 text-xs" id="past-logs-list-container">
+              <!-- 動的リストが注入されます -->
+            </div>
+
+            <!-- インタラクティブ編集フォーム -->
+            <div id="past-log-editor-box" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3 hidden">
+              <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                <span class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                  <i data-lucide="edit-3" class="w-4 h-4 text-[#2D2B75]"></i>編集
+                </span>
+                <button class="text-slate-400 hover:text-slate-600" onclick="closePastLogEditor()"><i data-lucide="x" class="w-4 h-4"></i></button>
+              </div>
+
+              <input type="hidden" id="edit-log-id">
+              
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-500 mb-1">日付</label>
+                  <input type="date" id="edit-log-date" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs focus:outline-none focus:border-[#2D2B75]">
                 </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-500 mb-1">活動種別</label>
+                  <select id="edit-log-type" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs focus:outline-none focus:border-[#2D2B75]">
+                    <option value="practice">練習</option>
+                    <option value="match">試合</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">担当当番 (1名)</label>
+                <select id="edit-log-member" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs focus:outline-none focus:border-[#2D2B75]"></select>
+              </div>
+
+              <div class="flex gap-2 pt-1">
+                <button onclick="savePastLogChanges()" class="flex-1 bg-[#2D2B75] hover:bg-[#1E1D55] text-white font-bold py-2 rounded-xl text-xs shadow-sm transition">
+                  変更を保存
+                </button>
+                <button onclick="closePastLogEditor()" class="px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 rounded-xl text-xs transition">
+                  キャンセル
+                </button>
               </div>
             </div>
           </div>
@@ -227,54 +276,108 @@
 
   </div>
 
-  <!-- =================================================== -->
-  <!-- JavaScript ロジック -->
-  <!-- =================================================== -->
   <script>
     let currentStatus = 'draft';
-    let currentDates = ["2026-08-01", "2026-08-02"];
+    // 登録日付とその種別
+    let currentDates = ["2026-08-01", "2026-08-02", "2026-08-08"];
+    let dateTypes = {
+      "2026-08-01": "practice",
+      "2026-08-02": "practice",
+      "2026-08-08": "match"
+    };
     
     const MAX_SLOTS = 4;
+    let historyActiveTab = 'practice'; // 'practice' or 'match'
+    let selectedPastMonth = '2026-07'; // デフォルト表示月
 
     // メンバーマスターデータ
     const usersMaster = [
-      { id: "user_doho", name: "堂鳳", dutyCount: 2 },
-      { id: "user_sato", name: "平松", dutyCount: 5 },
-      { id: "user_tanaka", name: "森本", dutyCount: 1 },
-      { id: "user_suzuki", name: "皆川", dutyCount: 3 },
-      { id: "user_watanabe", name: "大石", dutyCount: 0 }
+      { id: "user_doho", name: "堂鳳", practiceCount: 1, matchCount: 1 },
+      { id: "user_sato", name: "平松", practiceCount: 3, matchCount: 2 },
+      { id: "user_tanaka", name: "森本", practiceCount: 0, matchCount: 1 },
+      { id: "user_suzuki", name: "皆川", practiceCount: 2, matchCount: 1 },
+      { id: "user_watanabe", name: "大石", practiceCount: 0, matchCount: 0 }
     ];
 
-    const myBaseCount = 1;
+    const myBasePractice = 1;
+    const myBaseMatch = 0;
 
-    let mockResponses = {
-      "user_doho": { "2026-08-01": "ok", "2026-08-02": "maybe", "2026-08-08": "ng" },
-      "user_sato": { "2026-08-01": "maybe", "2026-08-02": "ng", "2026-08-08": "ok" },
+    // メンバー側の内部的な最新の入力内容
+    let tempResponses = {
+      "user_doho": { "2026-08-01": "ok", "2026-08-02": "maybe" },
+      "user_sato": { "2026-08-01": "maybe", "2026-08-08": "ok" },
       "user_tanaka": { "2026-08-01": "ok", "2026-08-02": "ok", "2026-08-08": "maybe" },
-      "user_suzuki": { "2026-08-01": "ng", "2026-08-02": "ok", "2026-08-08": "ng" },
-      "user_watanabe": { "2026-08-01": "ok", "2026-08-02": "maybe", "2026-08-08": "ok" }
+      "user_suzuki": { "2026-08-02": "ok" },
+      "user_watanabe": { "2026-08-01": "ok", "2026-08-08": "ok" }
     };
 
-    let myAnswers = { "2026-08-01": "ok", "2026-08-02": "maybe" };
+    // 「回答を保存」が押されたあ後の「確定ステータス」
+    let savedResponses = JSON.parse(JSON.stringify(tempResponses));
 
+    // あなた（ログインユーザ）の仮回答と確定回答
+    let myTempAnswers = { "2026-08-01": "ok", "2026-08-02": "maybe" };
+    let mySavedAnswers = JSON.parse(JSON.stringify(myTempAnswers));
+
+    // 当番の割り振り状況
     let currentAssignments = {
       "2026-08-01": ["my_user", ""], 
-      "2026-08-02": [""]      
+      "2026-08-02": [""],
+      "2026-08-08": [""]
     };
 
-    function getLiveDutyCount(userId) {
-      let base = (userId === 'my_user') ? myBaseCount : 0;
+    // 過去ログ
+    let pastLogs = [
+      { id: "p1", date: "2026-07-26", type: "match", member: "user_doho" },
+      { id: "p1_2", date: "2026-07-26", type: "match", member: "user_tanaka" }, // 複数人表示をサポートするため同日データ
+      { id: "p2", date: "2026-07-19", type: "practice", member: "user_sato" },
+      { id: "p2_2", date: "2026-07-19", type: "practice", member: "user_suzuki" },
+      { id: "p3", date: "2026-07-12", type: "practice", member: "user_sato" },
+      { id: "p3_2", date: "2026-07-12", type: "practice", member: "my_user" },
+      { id: "p4", date: "2026-06-28", type: "match", member: "user_tanaka" },
+      { id: "p5", date: "2026-06-14", type: "practice", member: "user_suzuki" }
+    ];
+
+    // 「回答保存」された確定回答のみを取得する
+    function getSavedAnswerStatus(userId, date) {
+      if (userId === 'my_user') {
+        return mySavedAnswers[date] || null;
+      }
+      return savedResponses[userId]?.[date] || null;
+    }
+
+    // リアルタイムに現在の割り振り＆過去実績を統合して集計する
+    function getLiveSplitCount(userId) {
+      let practice = (userId === 'my_user') ? myBasePractice : 0;
+      let match = (userId === 'my_user') ? myBaseMatch : 0;
+
       if (userId !== 'my_user') {
         const user = usersMaster.find(u => u.id === userId);
-        if (user) base = user.dutyCount;
+        if (user) {
+          practice = user.practiceCount;
+          match = user.matchCount;
+        }
       }
-      let assignedCount = 0;
+
+      // 1. 今月（アクティブ）の割り振り分をリアルタイム加算
       Object.keys(currentAssignments).forEach(date => {
+        const type = dateTypes[date] || 'practice';
         currentAssignments[date].forEach(slotUser => {
-          if (slotUser === userId) assignedCount++;
+          if (slotUser === userId) {
+            if (type === 'practice') practice++;
+            else match++;
+          }
         });
       });
-      return base + assignedCount;
+
+      // 2. 過去分の割り振りをリアルタイム加算
+      pastLogs.forEach(log => {
+        if (log.member === userId) {
+          if (log.type === 'practice') practice++;
+          else match++;
+        }
+      });
+
+      return { practice, match, total: practice + match };
     }
 
     function getWeekday(dateStr) {
@@ -282,6 +385,7 @@
       return weekdays[new Date(dateStr).getDay()];
     }
 
+    // 土日祝の自動追加
     function autoAddWeekendsAndHolidays() {
       const year = 2026; const month = 8;
       const holidays202608 = ["2026-08-11", "2026-08-12"];
@@ -290,10 +394,15 @@
         const dateObj = new Date(year, month - 1, day);
         const dateStr = `${year}-08-${String(day).padStart(2, '0')}`;
         if (dateObj.getDay() === 0 || dateObj.getDay() === 6 || holidays202608.includes(dateStr)) {
-          if (!currentDates.includes(dateStr)) { currentDates.push(dateStr); addedCount++; }
+          if (!currentDates.includes(dateStr)) { 
+            currentDates.push(dateStr); 
+            dateTypes[dateStr] = "practice";
+            addedCount++; 
+          }
         }
       }
-      currentDates.sort(); updateUI();
+      currentDates.sort(); 
+      updateUI();
       alert(`2026年8月の土日祝を自動追加しました！\n(新規追加: ${addedCount}件)`);
     }
 
@@ -311,9 +420,8 @@
     function switchMainTab(role) {
       document.getElementById('view-parent').classList.toggle('hidden', role !== 'parent');
       document.getElementById('view-admin').classList.toggle('hidden', role !== 'admin');
-      document.getElementById('tab-parent').className = role === 'parent' ? "flex-1 py-4 text-center font-bold text-blue-600 border-b-2 border-blue-600 focus:outline-none" : "flex-1 py-4 text-center font-bold text-gray-500 border-b-2 border-transparent focus:outline-none";
-      document.getElementById('tab-admin').className = role === 'admin' ? "flex-1 py-4 text-center font-bold text-indigo-600 border-b-2 border-indigo-600 focus:outline-none" : "flex-1 py-4 text-center font-bold text-gray-500 border-b-2 border-transparent focus:outline-none";
-      if (role === 'admin') mockResponses["my_user"] = myAnswers;
+      document.getElementById('tab-parent').className = role === 'parent' ? "flex-1 py-4 text-center text-sm font-bold text-[#2D2B75] border-b-2 border-[#2D2B75] focus:outline-none transition" : "flex-1 py-4 text-center text-sm font-bold text-slate-400 border-b-2 border-transparent focus:outline-none hover:text-slate-600 transition";
+      document.getElementById('tab-admin').className = role === 'admin' ? "flex-1 py-4 text-center text-sm font-bold text-[#2D2B75] border-b-2 border-[#2D2B75] focus:outline-none transition" : "flex-1 py-4 text-center text-sm font-bold text-slate-400 border-b-2 border-transparent focus:outline-none hover:text-slate-600 transition";
       updateUI();
     }
 
@@ -322,18 +430,32 @@
       document.getElementById('admin-panel-assign').classList.toggle('hidden', sub !== 'assign');
       document.getElementById('admin-panel-history').classList.toggle('hidden', sub !== 'history');
       ['dates', 'assign', 'history'].forEach(s => {
-        document.getElementById(`subtab-${s}`).className = sub === s ? "flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm" : "flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg";
+        document.getElementById(`subtab-${s}`).className = sub === s ? "flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm transition" : "flex-1 py-2 text-center text-xs font-bold text-slate-600 rounded-lg transition";
       });
+    }
+
+    function switchHistoryType(type) {
+      historyActiveTab = type;
+      document.getElementById('history-subtab-practice').className = type === 'practice' ? "flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm transition" : "flex-1 py-2 text-center text-xs font-bold text-slate-500 rounded-lg hover:text-slate-800 transition";
+      document.getElementById('history-subtab-match').className = type === 'match' ? "flex-1 py-2 text-center text-xs font-bold bg-white text-slate-800 rounded-lg shadow-sm transition" : "flex-1 py-2 text-center text-xs font-bold text-slate-500 rounded-lg hover:text-slate-800 transition";
+      renderHistoryView();
+    }
+
+    function switchPastMonth(month) {
+      selectedPastMonth = month;
+      renderPastMonthsTabs();
+      renderHistoryView();
     }
 
     function updateUI() {
       renderParentView();
       renderAdminView();
       renderHistoryView();
+      renderPastMonthsTabs();
       lucide.createIcons();
     }
 
-    // 📱 保護者画面レンダリング
+    // 📱 保護者画面
     function renderParentView() {
       const badge = document.getElementById('parent-badge');
       const emptyState = document.getElementById('parent-empty-state');
@@ -346,10 +468,10 @@
         badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600"; badge.innerText = "準備中";
         emptyState.classList.remove('hidden'); formArea.classList.add('hidden');
       } else if (currentStatus === 'open') {
-        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-green-100 text-green-700"; badge.innerText = "回答受付中";
+        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700"; badge.innerText = "回答受付中";
         emptyState.classList.add('hidden'); formArea.classList.remove('hidden'); lockMsg.classList.add('hidden'); guideMsg.classList.remove('hidden'); saveBtn.classList.remove('hidden');
       } else {
-        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700"; badge.innerText = "確定・締切";
+        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-[#2D2B75]/10 text-[#2D2B75]"; badge.innerText = "確定・締切";
         emptyState.classList.add('hidden'); formArea.classList.remove('hidden'); lockMsg.classList.remove('hidden'); guideMsg.classList.add('hidden'); saveBtn.classList.add('hidden');
       }
 
@@ -357,17 +479,19 @@
       container.innerHTML = '';
 
       currentDates.forEach(date => {
-        const day = date.split('-')[2]; const w = getWeekday(date); const currentSelection = myAnswers[date] || 'ng';
+        const day = date.split('-')[2]; const w = getWeekday(date); const currentSelection = myTempAnswers[date] || 'ng';
         const isHoli = (date === "2026-08-11" || date === "2026-08-12");
         const dayColor = (w === '日' || isHoli) ? 'text-red-500' : (w === '土' ? 'text-blue-500' : 'text-slate-700');
         const isDisabled = currentStatus === 'closed' ? 'disabled' : '';
+        const type = dateTypes[date] || 'practice';
 
         const item = document.createElement('div');
-        item.className = "flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 shadow-sm";
+        item.className = "flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100 shadow-sm";
         item.innerHTML = `
           <div>
-            <span class="text-sm font-bold text-slate-800">${date.split('-')[1]}/${day}</span>
-            <span class="text-xs font-bold ${dayColor} ml-1">(${isHoli?'祝':w})</span>
+            <span class="text-sm font-bold text-slate-800">${parseInt(date.split('-')[1])}/${day}</span>
+            <span class="text-xs font-bold ${dayColor} mr-1.5">(${isHoli?'祝':w})</span>
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${type === 'match' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 text-slate-700'}">${type === 'match' ? '試合' : '練習'}</span>
           </div>
           <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-inner">
             <button onclick="setAnswer('${date}', 'ok')" ${isDisabled} class="px-3 py-1.5 text-xs font-bold rounded-md toggle-btn ${currentSelection === 'ok' ? 'bg-green-100 text-green-700' : 'text-gray-400'}">〇</button>
@@ -383,51 +507,81 @@
       const announcement = document.getElementById('parent-announcement');
       if (currentStatus === 'closed') {
         announcement.classList.remove('hidden');
-        document.getElementById('assigned-date-text').innerText = myAssignedDates.length > 0 ? myAssignedDates.map(d => `${d.split('-')[1]}/${d.split('-')[2]}(${getWeekday(d)})`).join(', ') + " に決定しました！" : "今月の担当日はありません";
+        document.getElementById('assigned-date-text').innerText = myAssignedDates.length > 0 ? myAssignedDates.map(d => `${parseInt(d.split('-')[1])}/${parseInt(d.split('-')[2])}(${getWeekday(d)}) [${dateTypes[d] === 'match' ? '試合' : '練習'}]`).join(', ') + " に決定しました！" : "今月の担当日はありません";
       } else { announcement.classList.add('hidden'); }
     }
 
-    function setAnswer(date, value) { if (currentStatus !== 'closed') { myAnswers[date] = value; updateUI(); } }
-    function saveParentResponses() { alert("回答を保存しました！"); }
+    function setAnswer(date, value) { if (currentStatus !== 'closed') { myTempAnswers[date] = value; updateUI(); } }
+    
+    function saveParentResponses() { 
+      mySavedAnswers = JSON.parse(JSON.stringify(myTempAnswers));
+      alert("回答を確定・保存しました！これにより役員側の割り当て画面であなたが選択可能になります。"); 
+      updateUI();
+    }
 
-    // 👑 役員画面（重複防止対応ロジック）
+    // 👑 役員画面
     function renderAdminView() {
       const badge = document.getElementById('admin-status-badge');
-      const lockHint = document.getElementById('admin-lock-hint');
-      const lockBtn = document.getElementById('admin-lock-btn');
+      if (currentStatus === 'draft') { badge.className = "text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800"; badge.innerText = "1.日程作成中"; }
+      else if (currentStatus === 'open') { badge.className = "text-xs font-bold px-2 py-0.5 rounded-md bg-green-100 text-green-800"; badge.innerText = "2.保護者回答受付中"; }
+      else { badge.className = "text-xs font-bold px-2 py-0.5 rounded-md bg-purple-100 text-purple-800"; badge.innerText = "3.確定・ロック済"; }
 
-      if (currentStatus === 'draft') { badge.className = "text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800"; badge.innerText = "1.日程作成中"; lockHint.classList.add('hidden'); lockBtn.innerHTML = `<i data-lucide="lock" class="w-4 h-4"></i>この内容で当番を確定・ロックする`; }
-      else if (currentStatus === 'open') { badge.className = "text-xs font-bold px-2 py-0.5 rounded-md bg-green-100 text-green-800"; badge.innerText = "2.保護者回答受付中"; lockHint.classList.add('hidden'); lockBtn.innerHTML = `<i data-lucide="lock" class="w-4 h-4"></i>この内容で当番を確定・ロックする`; }
-      else { badge.className = "text-xs font-bold px-2 py-0.5 rounded-md bg-purple-100 text-purple-800"; badge.innerText = "3.確定・ロック済"; lockHint.classList.remove('hidden'); lockBtn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i>メンバーの変更を保存する`; }
+      // ① 日程管理リスト
+      const configContainer = document.getElementById('admin-dates-config-list');
+      configContainer.innerHTML = '';
 
-      const chipContainer = document.getElementById('admin-date-chips'); chipContainer.innerHTML = '';
+      if (currentDates.length === 0) {
+        configContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">設定された日程はありません</p>`;
+      } else {
+        currentDates.forEach(date => {
+          const w = getWeekday(date);
+          const isHoli = (date === "2026-08-11" || date === "2026-08-12");
+          const dayColor = (w === '日' || isHoli) ? 'text-red-500' : (w === '土' ? 'text-blue-500' : 'text-slate-700');
+          const type = dateTypes[date] || 'practice';
+
+          const item = document.createElement('div');
+          item.className = "flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-xl shadow-sm text-xs";
+          item.innerHTML = `
+            <div class="flex items-center gap-2">
+              <button onclick="deleteDate('${date}')" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
+              <span class="font-bold text-slate-800">${parseInt(date.split('-')[1])}/${parseInt(date.split('-')[2])} <span class="${dayColor}">(${isHoli?'祝':w})</span></span>
+            </div>
+            <div class="flex items-center gap-1 bg-white p-1 rounded-lg border border-slate-200">
+              <button onclick="toggleDateType('${date}', 'practice')" class="px-2 py-1 rounded font-bold text-[10px] transition ${type === 'practice' ? 'bg-slate-200 text-slate-800' : 'text-slate-400'}">練習</button>
+              <button onclick="toggleDateType('${date}', 'match')" class="px-2 py-1 rounded font-bold text-[10px] transition ${type === 'match' ? 'bg-indigo-600 text-white' : 'text-slate-400'}">試合</button>
+            </div>
+          `;
+          configContainer.appendChild(item);
+        });
+      }
+
+      // ② 割り振り画面
+      const assignContainer = document.getElementById('admin-assign-list'); 
+      assignContainer.innerHTML = '';
+
       currentDates.forEach(date => {
-        const w = getWeekday(date); const isHoli = (date === "2026-08-11" || date === "2026-08-12");
-        const chipColor = (w === '日' || isHoli) ? 'bg-red-50 text-red-700 border-red-100' : (w === '土' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-slate-50 text-slate-700 border-slate-100');
-        const chip = document.createElement('span');
-        chip.className = `inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-xl border shadow-sm ${chipColor}`;
-        chip.innerHTML = `${date.split('-')[1]}/${date.split('-')[2]}(${isHoli?'祝':w}) <button class="hover:text-red-500 ml-0.5" onclick="deleteDate('${date}')">×</button>`;
-        chipContainer.appendChild(chip);
-      });
-
-      const assignContainer = document.getElementById('admin-assign-list'); assignContainer.innerHTML = '';
-
-      currentDates.forEach(date => {
-        const w = getWeekday(date); const isHoli = (date === "2026-08-11" || date === "2026-08-12");
+        const w = getWeekday(date); 
+        const isHoli = (date === "2026-08-11" || date === "2026-08-12");
         const dayColor = (w === '日' || isHoli) ? 'text-red-500' : (w === '土' ? 'text-blue-500' : 'text-slate-700');
+        const type = dateTypes[date] || 'practice';
         
         if (!currentAssignments[date]) currentAssignments[date] = [""];
         const slots = currentAssignments[date];
 
         const block = document.createElement('div');
-        block.className = "p-4 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-3";
+        block.className = "p-4 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-3";
         const isMaxReached = slots.length >= MAX_SLOTS;
 
         block.innerHTML = `
-          <div class="flex items-center justify-between border-b pb-2">
-            <span class="text-sm font-bold text-slate-800">${date.split('-')[1]}/${date.split('-')[2]} <span class="${dayColor}">(${isHoli?'祝':w})</span></span>
-            <button onclick="addSlot('${date}')" ${isMaxReached ? 'disabled' : ''} class="text-xs font-bold flex items-center gap-0.5 px-2 py-1 rounded-lg transition ${isMaxReached ? 'text-slate-300 bg-slate-100' : 'text-indigo-600 bg-indigo-50'}">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>枠を追加
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-bold text-slate-800">${parseInt(date.split('-')[1])}/${parseInt(date.split('-')[2])} <span class="${dayColor}">(${isHoli?'祝':w})</span></span>
+              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${type === 'match' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-700'}">
+                ${type === 'match' ? '試合' : '練習'}
+              </span>
+            </div>
+            <button onclick="addSlot('${date}')" ${isMaxReached ? 'disabled' : ''} class="text-xs font-bold flex items-center gap-0.5 px-2 py-1 rounded-lg transition ${isMaxReached ? 'text-slate-300 bg-slate-100' : 'text-[#2D2B75] bg-[#2D2B75]/5'}">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>追加
             </button>
           </div>
         `;
@@ -435,41 +589,47 @@
         let slotsHtml = `<div class="space-y-2.5">`;
         slots.forEach((currentAssigned, index) => {
           let optionsHtml = `<option value="">-- 担当者 ${index + 1} を選択 --</option>`;
-          
-          // 🆕 この「同日内の他のスロット」で既に選ばれているユーザーIDの配列を作る
           const alreadySelectedInThisDate = slots.filter((uid, i) => i !== index && uid !== "");
 
-          // 1. あなた (my_user) の判定
-          const myStatus = myAnswers[date] || 'ng';
-          if (myStatus !== 'ng') {
+          // 1. あなた (my_user) 
+          const myStatus = getSavedAnswerStatus('my_user', date);
+          const statsMe = getLiveSplitCount('my_user');
+          if (myStatus === 'ok' || myStatus === 'maybe') {
             const isSelectedElsewhere = alreadySelectedInThisDate.includes('my_user');
             const disabledAttr = isSelectedElsewhere ? 'disabled' : '';
-            const suffix = isSelectedElsewhere ? ' [※選択済]' : ` [${myStatus === 'ok'?'〇':'回答可'}]`;
-            optionsHtml += `<option value="my_user" ${currentAssigned === 'my_user' ? 'selected' : ''} ${disabledAttr}>🌟 あなた (通算: ${getLiveDutyCount('my_user')}回)${suffix}</option>`;
+            const suffix = isSelectedElsewhere ? ' [※選択済]' : ` [${myStatus === 'ok' ? '〇' : '△'}]`;
+            optionsHtml += `<option value="my_user" ${currentAssigned === 'my_user' ? 'selected' : ''} ${disabledAttr}>🌟 あなた (練:${statsMe.practice} / 試:${statsMe.match})${suffix}</option>`;
           }
 
-          // 2. 他のメンバーの判定
+          // 2. メンバー 
           usersMaster.forEach(u => {
-            const status = mockResponses[u.id]?.[date] || 'ng';
+            const status = getSavedAnswerStatus(u.id, date);
+            const statsU = getLiveSplitCount(u.id);
             if (status === 'ok' || status === 'maybe') {
               const isSelectedElsewhere = alreadySelectedInThisDate.includes(u.id);
               const disabledAttr = isSelectedElsewhere ? 'disabled' : '';
               const suffix = isSelectedElsewhere ? ' [※選択済]' : ` [${status === 'ok' ? '〇' : '△'}]`;
-              optionsHtml += `<option value="${u.id}" ${currentAssigned === u.id ? 'selected' : ''} ${disabledAttr}>${u.name} (通算: ${getLiveDutyCount(u.id)}回)${suffix}</option>`;
+              optionsHtml += `<option value="${u.id}" ${currentAssigned === u.id ? 'selected' : ''} ${disabledAttr}>${u.name} (練:${statsU.practice} / 試:${statsU.match})${suffix}</option>`;
             }
           });
 
-          optionsHtml += `<option disabled>──────────</option>`;
+          // 3. 未回答メンバー
+          optionsHtml += `<option disabled>── 未回答 (選択不可) ──</option>`;
+          
+          if (!myStatus) {
+            optionsHtml += `<option value="my_user" disabled class="text-slate-300">🌟 あなた (練:${statsMe.practice} / 試:${statsMe.match}) [未回答]</option>`;
+          }
           usersMaster.forEach(u => {
-            const status = mockResponses[u.id]?.[date] || 'ng';
-            if (status === 'ng') {
-              optionsHtml += `<option value="${u.id}" disabled class="text-slate-300">${u.name} (通算: ${getLiveDutyCount(u.id)}回) [×不可]</option>`;
+            const status = getSavedAnswerStatus(u.id, date);
+            const statsU = getLiveSplitCount(u.id);
+            if (!status) {
+              optionsHtml += `<option value="${u.id}" disabled class="text-slate-300">${u.name} (練:${statsU.practice} / 試:${statsU.match}) [未回答]</option>`;
             }
           });
 
           slotsHtml += `
             <div class="flex items-center gap-2">
-              <select class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-700 shadow-sm focus:outline-none focus:bg-white focus:border-indigo-500" onchange="assignUser('${date}', ${index}, this.value)">
+              <select class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-700 shadow-sm focus:outline-none focus:bg-white focus:border-[#2D2B75] transition" onchange="assignUser('${date}', ${index}, this.value)">
                 ${optionsHtml}
               </select>
               ${slots.length > 1 ? `<button onclick="removeSlot('${date}', ${index})" class="text-slate-400 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
@@ -482,56 +642,217 @@
       });
     }
 
-    // 👑 履歴タブレンダリング
+    // ③ 履歴画面の描画（🌟アイコンに変更・文字サイズを小さめに調整）
     function renderHistoryView() {
-      const rankingContainer = document.getElementById('history-ranking-list'); rankingContainer.innerHTML = '';
+      const sortedListContainer = document.getElementById('history-sorted-list'); 
+      sortedListContainer.innerHTML = '';
+
+      // メンバーリスト作成
       const allMembers = [
         { id: "my_user", name: "あなた", isMe: true },
         ...usersMaster.map(u => ({ id: u.id, name: u.name, isMe: false }))
-      ].map(member => ({ ...member, dutyCount: getLiveDutyCount(member.id) }));
+      ].map(member => {
+        const counts = getLiveSplitCount(member.id);
+        return { ...member, practice: counts.practice, match: counts.match, total: counts.total };
+      });
 
-      const totalCount = allMembers.reduce((sum, member) => sum + member.dutyCount, 0);
-      const averageCount = allMembers.length > 0 ? (totalCount / allMembers.length) : 0;
-      document.getElementById('history-average-badge').innerText = `${averageCount.toFixed(1)} 回`;
+      // 選択中タブの平均値算出
+      const totalCount = allMembers.reduce((sum, m) => sum + m[historyActiveTab], 0);
+      const avgVal = allMembers.length > 0 ? (totalCount / allMembers.length) : 0;
 
-      allMembers.sort((a, b) => a.dutyCount - b.dutyCount);
+      // 👑 紫背景の平均表示の更新
+      document.getElementById('average-count-display').innerText = `${avgVal.toFixed(1)}`;
+
+      // 当番が【少ない順（昇順）】に並び替え
+      allMembers.sort((a, b) => a[historyActiveTab] - b[historyActiveTab]);
 
       allMembers.forEach((member, i) => {
-        const row = document.createElement('div');
-        row.className = `flex justify-between items-center px-4 py-2.5 text-xs ${member.isMe ? 'bg-amber-50/50' : ''}`;
-        const diff = member.dutyCount - averageCount;
+        const count = member[historyActiveTab];
+        const diff = count - avgVal;
         const diffText = diff >= 0 ? `+${diff.toFixed(1)}` : `${diff.toFixed(1)}`;
+        
+        let evalHtml = '';
+        if (diff >= 0.8) {
+          evalHtml = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full border text-red-600 bg-red-50 border-red-200 w-[80px] text-center tracking-tight">多め (${diffText})</span>`;
+        } else if (diff <= -0.8) {
+          evalHtml = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full border text-emerald-600 bg-emerald-50 border-emerald-200 w-[80px] text-center tracking-tight">少なめ (${diffText})</span>`;
+        } else {
+          evalHtml = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full border text-slate-500 bg-slate-50 border-slate-200 w-[80px] text-center tracking-tight">標準 (${diffText})</span>`;
+        }
 
-        let statusText = `標準 (${diffText})`;
-        let badgeClass = 'bg-slate-100 text-slate-500 border border-slate-200';
-        if (diff >= 1.0) { statusText = `多め (${diffText})`; badgeClass = 'bg-red-50 text-red-600 border border-red-200 font-bold'; }
-        else if (diff <= -1.0) { statusText = `少なめ (${diffText})`; badgeClass = 'bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold'; }
+        const nameLabel = member.isMe ? `<strong>あなた</strong>` : member.name;
 
+        // アイコンの判定（1位は緑の丸、自分は太陽ではなく「🌟」に変更）
+        let iconHtml = '';
+        if (i === 0) {
+          iconHtml = `<span class="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-500 inline-block mr-2 shadow-sm shrink-0"></span>`;
+        } else if (member.isMe) {
+          iconHtml = `<span class="mr-1 text-amber-500 text-xs leading-none shrink-0">🌟</span>`;
+        } else {
+          iconHtml = `<span class="w-2.5 h-2.5 mr-2 inline-block shrink-0"></span>`;
+        }
+
+        const row = document.createElement('div');
+        // pxやpy、フォントを小さめに修正 (text-xs)
+        row.className = `flex justify-between items-center px-4 py-2.5 text-xs border-b border-slate-100 last:border-b-0 ${member.isMe ? 'bg-[#FFFAF0] font-bold' : 'bg-white'}`;
         row.innerHTML = `
-          <div class="flex items-center gap-1.5">
-            <span class="text-slate-400 font-mono w-4">${i + 1}</span>
-            <span>${i === 0 ? '🟢 ' : ''}${member.isMe ? `🌟 <strong>あなた</strong>` : member.name}</span>
+          <div class="flex items-center gap-3">
+            <span class="text-slate-300 font-mono text-xs w-3 text-right">${i + 1}</span>
+            <span class="text-slate-800 flex items-center">${iconHtml}${nameLabel}</span>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="font-bold text-slate-700">${member.dutyCount} 回</span>
-            <span class="text-[10px] px-2 py-0.5 rounded-md ${badgeClass}">${statusText}</span>
+          <div class="flex items-center gap-3">
+            <span class="font-bold text-slate-700">${count} <span class="text-[10px] font-normal text-slate-500">回</span></span>
+            ${evalHtml}
           </div>
         `;
-        rankingContainer.appendChild(row);
+        sortedListContainer.appendChild(row);
+      });
+
+      // ──────────────────────────────────────────
+      // 月単位でフィルタリングされた過去ログ描画
+      // ──────────────────────────────────────────
+      const logsContainer = document.getElementById('past-logs-list-container');
+      logsContainer.innerHTML = '';
+
+      // 選択されている月のログのみ抽出
+      const filteredLogs = pastLogs.filter(log => log.date.startsWith(selectedPastMonth));
+
+      // 月のヘッダーを表示（フォントサイズ縮小）
+      const monthHeader = document.createElement('p');
+      monthHeader.className = "text-xs font-bold text-slate-800 mb-2 border-b border-slate-100 pb-1";
+      monthHeader.innerText = `${parseInt(selectedPastMonth.split('-')[0])}年${parseInt(selectedPastMonth.split('-')[1])}月`;
+      logsContainer.appendChild(monthHeader);
+
+      if (filteredLogs.length === 0) {
+        const emptyMsg = document.createElement('p');
+        emptyMsg.className = "text-xs text-slate-400 text-center py-4 bg-white rounded-xl border border-dashed border-slate-200";
+        emptyMsg.innerText = "この月のお当番履歴はありません";
+        logsContainer.appendChild(emptyMsg);
+      } else {
+        // 同じ日付のログを統合
+        const groupedByDate = {};
+        filteredLogs.forEach(log => {
+          if (!groupedByDate[log.date]) {
+            groupedByDate[log.date] = { type: log.type, members: [], ids: [] };
+          }
+          const memberName = log.member === 'my_user' ? 'あなた' : (usersMaster.find(u => u.id === log.member)?.name || '未登録');
+          groupedByDate[log.date].members.push(memberName);
+          groupedByDate[log.date].ids.push(log.id);
+        });
+
+        // 日付降順で表示
+        const sortedDates = Object.keys(groupedByDate).sort().reverse();
+        sortedDates.forEach((dateStr, idx) => {
+          const group = groupedByDate[dateStr];
+          const w = getWeekday(dateStr);
+          const formattedDate = `${parseInt(dateStr.split('-')[1])}/${parseInt(dateStr.split('-')[2])}(${w})`;
+
+          const item = document.createElement('div');
+          item.className = "flex justify-between border-b border-slate-200 border-dashed pb-2.5 last:border-0 last:pb-0 cursor-pointer hover:bg-slate-100/50 rounded px-1 transition";
+          
+          // 編集ボックスを開くトリガーを維持
+          item.onclick = () => openPastLogEditor(group.ids[0]);
+
+          item.innerHTML = `
+            <span class="text-slate-600">${formattedDate}</span>
+            <span class="font-bold text-slate-800 flex items-center gap-1.5">
+              ${group.members.join(', ')}
+              <i data-lucide="edit-2" class="w-3 h-3 text-slate-300"></i>
+            </span>
+          `;
+          logsContainer.appendChild(item);
+        });
+      }
+    }
+
+    // 月別切り替え用タブの生成
+    function renderPastMonthsTabs() {
+      const container = document.getElementById('past-months-tab-container');
+      container.innerHTML = '';
+
+      // 重複排除してログがある年月を抽出
+      const months = Array.from(new Set(pastLogs.map(log => log.date.substring(0, 7)))).sort().reverse();
+
+      months.forEach(m => {
+        const displayMonth = `${parseInt(m.split('-')[1])}月`;
+        const isActive = selectedPastMonth === m;
+        const btn = document.createElement('button');
+        btn.onclick = () => switchPastMonth(m);
+        btn.className = `px-2 py-0.5 rounded transition ${isActive ? 'bg-white text-slate-800 shadow-sm font-bold' : 'text-slate-500 hover:text-slate-800'}`;
+        btn.innerText = displayMonth;
+        container.appendChild(btn);
       });
     }
 
+    // 過去ログを編集するフォームの制御
+    function openPastLogEditor(logId) {
+      const log = pastLogs.find(l => l.id === logId);
+      if (!log) return;
+
+      document.getElementById('past-log-editor-box').classList.remove('hidden');
+      document.getElementById('edit-log-id').value = log.id;
+      document.getElementById('edit-log-date').value = log.date;
+      document.getElementById('edit-log-type').value = log.type;
+
+      const memberSelect = document.getElementById('edit-log-member');
+      memberSelect.innerHTML = `<option value="my_user">あなた</option>`;
+      usersMaster.forEach(u => {
+        memberSelect.innerHTML += `<option value="${u.id}">${u.name}</option>`;
+      });
+      memberSelect.value = log.member;
+
+      document.getElementById('past-log-editor-box').scrollIntoView({ behavior: 'smooth', block: 'end' });
+      lucide.createIcons();
+    }
+
+    function closePastLogEditor() {
+      document.getElementById('past-log-editor-box').classList.add('hidden');
+    }
+
+    function savePastLogChanges() {
+      const id = document.getElementById('edit-log-id').value;
+      const date = document.getElementById('edit-log-date').value;
+      const type = document.getElementById('edit-log-type').value;
+      const member = document.getElementById('edit-log-member').value;
+
+      const log = pastLogs.find(l => l.id === id);
+      if (log) {
+        log.date = date;
+        log.type = type;
+        log.member = member;
+        
+        // 編集によって選択されていた月が変更になった場合の切り替え
+        selectedPastMonth = date.substring(0, 7);
+
+        closePastLogEditor();
+        updateUI();
+        alert("過去ログを修正しました。カウント・評価に即時反映されます。");
+      }
+    }
+
+    function toggleDateType(date, type) { dateTypes[date] = type; updateUI(); }
     function addSlot(date) { if (currentAssignments[date].length < MAX_SLOTS) { currentAssignments[date].push(""); updateUI(); } }
     function removeSlot(date, index) { currentAssignments[date].splice(index, 1); updateUI(); }
     function assignUser(date, index, userId) { currentAssignments[date][index] = userId; updateUI(); }
     function deleteDate(date) { currentDates = currentDates.filter(d => d !== date); delete currentAssignments[date]; updateUI(); }
+    
     function addManualDate() {
       const input = document.getElementById('manual-date-input');
       if (!input.value) return alert("日付を選択してください");
       if (currentDates.includes(input.value)) return alert("その日付は既に追加されています");
-      currentDates.push(input.value); currentDates.sort(); input.value = ''; updateUI();
+      currentDates.push(input.value); 
+      dateTypes[input.value] = "practice";
+      currentDates.sort(); 
+      input.value = ''; 
+      updateUI();
     }
-    function publishSchedules() { alert("募集を開始しました！"); setSystemStatus('open'); switchSubTab('assign'); }
+
+    function publishSchedules() { 
+      alert("日程を確定し、保護者の回答募集を開始しました！"); 
+      setSystemStatus('open'); 
+      switchSubTab('assign'); 
+    }
+
     function lockAssignments() {
       if (currentStatus === 'closed') alert("お当番メンバーの変更内容を保存しました！");
       else { alert("お当番を確定・ロックしました！"); setSystemStatus('closed'); }
