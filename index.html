@@ -569,7 +569,7 @@
       });
     }
 
-    // 🆕 履歴タブの表示レンダリング
+// 🆕 履歴タブの表示レンダリング (平均値ベースの相対評価版)
     function renderHistoryView() {
       const rankingContainer = document.getElementById('history-ranking-list');
       rankingContainer.innerHTML = '';
@@ -580,16 +580,33 @@
         ...usersMaster.map(u => ({ id: u.id, name: u.name, dutyCount: u.dutyCount, isMe: false }))
       ];
 
-      // 回数の少ない順（昇順）にソートして不公平感を解消しやすくする
+      // 1. 全員の平均回数を計算
+      const totalCount = allMembers.reduce((sum, member) => sum + member.dutyCount, 0);
+      const averageCount = allMembers.length > 0 ? (totalCount / allMembers.length) : 0;
+
+      // 回数の少ない順（昇順）にソート
       allMembers.sort((a, b) => a.dutyCount - b.dutyCount);
 
       allMembers.forEach((member, i) => {
         const row = document.createElement('div');
         row.className = `flex justify-between items-center px-4 py-2.5 text-xs ${member.isMe ? 'bg-amber-50/50' : ''}`;
         
-        // 順位表示用のメダル絵文字など
         const medal = i === 0 ? '🟢 ' : ''; 
         const nameText = member.isMe ? `🌟 <strong>あなた</strong>` : member.name;
+
+        // 2. 平均との差分から相対判定
+        let statusText = '標準';
+        let badgeClass = 'bg-slate-100 text-slate-500'; // 標準（グレー）
+
+        const diff = member.dutyCount - averageCount;
+
+        if (diff >= 1.0) {
+          statusText = '多め';
+          badgeClass = 'bg-red-50 text-red-600 border border-red-100'; // 多め（赤）
+        } else if (diff <= -1.0) {
+          statusText = '少なめ';
+          badgeClass = 'bg-emerald-50 text-emerald-600 border border-emerald-100'; // 少なめ（緑）
+        }
 
         row.innerHTML = `
           <div class="flex items-center gap-1.5">
@@ -598,15 +615,14 @@
           </div>
           <div class="flex items-center gap-2">
             <span class="font-bold text-slate-700">${member.dutyCount} 回</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
-              ${member.dutyCount <= 1 ? '偏りなし' : (member.dutyCount >= 4 ? '多め' : '標準')}
+            <span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold ${badgeClass}">
+              ${statusText}
             </span>
           </div>
         `;
         rankingContainer.appendChild(row);
       });
     }
-
     function addSlot(date) {
       if (currentAssignments[date].length >= MAX_SLOTS) return;
       currentAssignments[date].push("");
